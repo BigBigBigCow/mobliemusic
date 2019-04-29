@@ -54,7 +54,7 @@
       <div class="hotop">
         <div class="hotopct">
           <div class="u-hmsprt hoticon"></div>
-          <div class="hottime">更新日期：04月18日</div>
+          <div class="hottime">更新日期：04月25日</div>
         </div>
       </div>
       <div class="newSong">

@@ -6,7 +6,7 @@
         <div class="playlist-l">
           <span class="playlist-hd">歌单</span>
           <img :src="playlist.coverImgUrl">
-          <span class="playlist-icon"><i class="iconfont big-icon-test15"></i>{{(playlist.playCount/10000)>10000?(playlist.playCount/100000000).toFixed(1)+'亿':(playlist.playCount/10000).toFixed(1)+'万'}}</span>
+          <span class="playlist-icon" v-if="playlist.playCount"><i class="iconfont big-icon-test15"></i>{{(playlist.playCount/10000)>10000?(playlist.playCount/100000000).toFixed(1)+'亿':(playlist.playCount/10000).toFixed(1)+'万'}}</span>
         </div>
         <div class="playlist-r">
           <span>{{playlist.name}}</span>
@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="playlist-intro">
-        <div class="intro-tag" v-if="playlist.tags.length>0">
+        <div class="intro-tag" v-if="playlist.tags">
           标签：
           <span v-for="(item, index) in playlist.tags" :key="index">{{item}}</span>
         </div>

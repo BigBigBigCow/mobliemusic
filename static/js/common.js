@@ -46,7 +46,7 @@ export default {
     var m = time.getMonth() + 1
     var d = time.getDate()
     if (m < 10) m = '0' + m
-    if (d < 10) d = '0' + m
+    if (d < 10) d = '0' + d
     // var h = time.getHours();
     // var mm = time.getMinutes();
     // var s = time.getSeconds();

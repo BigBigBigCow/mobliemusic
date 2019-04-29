@@ -134,12 +134,13 @@ export default {
   },
   methods: {
     playListDetail (id) {
+      this.$router.go(-1)
       this.$router.replace(`/playList?id=${id}`)
     },
     getLyricText () {
       let ct = this.audio.currentTime
       let lyricIndex = this.lyricIndex
-      console.log(ct, lyricIndex)
+      // console.log(ct, lyricIndex)
       if (ct === 0) return
       // console.log(parseInt(this.lyric[0].t), parseInt(ct))
       for (let i in this.lyric) {
