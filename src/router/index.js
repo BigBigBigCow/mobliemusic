@@ -40,6 +40,10 @@ export default new Router({
       path: '/play',
       name: 'play',
       component: (resolve) => require(['@/pages/play'], resolve)
+    }, {
+      path: '/playList',
+      name: 'playList',
+      component: (resolve) => require(['@/pages/playListDetail'], resolve)
     }
   ]
 })

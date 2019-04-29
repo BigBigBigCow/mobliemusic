@@ -25,10 +25,10 @@
           <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
         </div>
         <div class="ream-ul">
-          <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''">
+          <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
             <div>
               <img :src="item.coverImgUrl+'?param=300y300'" alt="">
-              <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000).toFixed(1)}}万</span>
+              <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
             </div>
             <span class="remd_text ellips">{{item.name}}</span>
             <span class="remd_text ellips" style="color: hsla(0,0%,100%,.6);">by {{item.creator.nickname}}</span>
@@ -40,7 +40,7 @@
         <div class="cmt">
           <div class="cmt_item" v-for="(item, index) in songComment" :key="index">
             <div class="cmt_head">
-              <img :src="item.user.avatarUrl + '?param=30y30'">
+              <img :src="item.user.avatarUrl + '?param=100y100'">
               <span v-if="item.user.userType === 4"></span>
             </div>
             <div class="cmt_wrap">
@@ -100,9 +100,9 @@ export default {
     // console.log(document.querySelector('#audio'))
     let that = this
     this.audio.addEventListener(`error`, function err () {
-      console.log(`播放错误`)
+      console.log(`播放错误!可能是没有版权！！！`)
       that.mint.Toast({
-        message: '播放错误！',
+        message: '播放错误!可能是没有版权！！！',
         position: 'bottom'
       })
     })
@@ -133,6 +133,9 @@ export default {
     }
   },
   methods: {
+    playListDetail (id) {
+      this.$router.replace(`/playList?id=${id}`)
+    },
     getLyricText () {
       let ct = this.audio.currentTime
       let lyricIndex = this.lyricIndex
@@ -150,13 +153,19 @@ export default {
     },
     play () {
       console.log(this.audio.duration)
-      if (this.audio.duration > 0) {
+      let duration = this.audio.duration
+      if (duration > 0) {
         this.isPlay = !this.isPlay
         if (this.isPlay) {
           this.audio.play()
         } else {
           this.audio.pause()
         }
+      } else if (isNaN(duration)) {
+        this.mint.Toast({
+          message: '播放错误!可能是没有版权！！！',
+          position: 'bottom'
+        })
       }
     },
     // 获得歌曲详细信息
@@ -169,6 +178,7 @@ export default {
         for (let j = 1; j < data.ar.length; j++) {
           author = author + '/' + data.ar[j].name
         }
+        document.title = response.body.songs[0].name + '--' + data.ar[0].name + author
         this.song[0].author = data.ar[0].name + author
         // console.log(response.body.songs[0].al.picUrl)
         /* this.styleObj = {

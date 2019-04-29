@@ -17,19 +17,19 @@
       </div>
 <!--      歌单列表-->
       <div class="ream-ul">
-        <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index < 3">
+        <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index < 3" @click="playListDetail(item.id)">
           <div>
             <img :src="item.picUrl+'?param=300y300'" alt="">
-            <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000).toFixed(1)}}万</span>
+            <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
           </div>
           <span class="remd_text">{{item.name}}</span>
         </div>
       </div>
       <div class="ream-ul">
-        <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index >= 3">
+        <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index >= 3" @click="playListDetail(item.id)">
           <div>
             <img :src="item.picUrl+'?param=300y300'" alt="">
-            <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000).toFixed(1)}}万</span>
+            <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
           </div>
           <span class="remd_text">{{item.name}}</span>
         </div>
@@ -73,7 +73,7 @@
         <div class="search-hot">
           <span  v-for="(item, index) in hotSearch" :key="index" @click="search(item.first)">{{item.first}}</span>
         </div>
-        <div class="search-log" style="margin-top: 6px;">
+        <div class="search-log" style="margin-top: 6px;" v-if="searchLog.length>0">
           <div v-for="(item, index) in searchLog" :key="index" v-if="item">
             <span @click="search(item)" style="display: inline-block;width: 90%;">
               <i class="iconfont big-jilu" style="color: #ccc;font-size: 18px;float: left;margin-right: 10px;"></i>
@@ -87,7 +87,7 @@
 <!--         歌曲显示固定格式-->
         <div class="newSong">
           <div class="newSong_li" v-for="(item, index) in SongList" :key="index" @click="goPlayInfo(item.songId)">
-            <div class="newSong_li_img" ><img :src="item.pic" style="width: 30px;height: 30px;"></div>
+            <div class="newSong_li_img" ><img :src="item.pic + '?param=50y50'" style="width: 30px;height: 30px;"></div>
             <div class="newSong_li_title ellips" style="padding-left: 46px;" v-html="item.title"></div>
             <div class="newSong_li_author"><i class="big-big-icon-test2 iconfont" style="font-size: 27px;"></i></div>
             <div class="newSong_li_icon ellips" style="padding-left: 46px;" v-html="item.author+'-'+item.special" ><i class="iconfont big-sq1" style="margin-right: 4px;color: #eea375;"></i></div>
@@ -120,12 +120,15 @@ export default {
   mounted () {
     this.nevaBarId = 1
     this.getPersonalized() // 获取推荐歌单
-    this.getNewSong() // 获取最新歌曲
+    // this.getNewSong() // 获取最新歌曲
     this.getHotSearch() // 获得热搜关键词
     this.searchLog = this.common.getStorage('searchLog') || []
     if (this.searchLog.length > 0) this.searchLog = this.searchLog.split(',')
   },
   methods: {
+    playListDetail (id) {
+      this.$router.push(`/playList?id=${id}`)
+    },
     nevaBarFun (index) {
       this.nevaBarId = index
       // let that = this
@@ -202,6 +205,7 @@ export default {
         for (let i in SongList) {
           SongList[i].title = SongList[i].title.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
           SongList[i].special = SongList[i].special.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
+          SongList[i].author = SongList[i].author.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
         }
         this.SongList = SongList
       })
@@ -294,6 +298,7 @@ export default {
   position: absolute;
   top: 80px;
   width: 100%;
+  height: calc(100% - 81px);
   overflow: auto;
   background-color: #fbfcfd;
   -webkit-overflow-scrolling: touch;
@@ -361,7 +366,7 @@ export default {
 .search-i{
   color: #333;
   /*border-top: 1px solid #ccc;*/
-  border-bottom: 1px solid #ccc;
+  /*border-bottom: 1px solid #ccc;*/
   padding: 10px 8px 0 8px;
   font-size: 14px;
 }
@@ -374,9 +379,9 @@ export default {
   /* border-radius: 12%; */
   border-radius: 16px;
 }
-.search-log div{
+.search-log>div{
   width: 100%;
-  padding: 6px 0;
+  padding: 10px 0;
   font-size: 16px;
 }
 .hotop {
