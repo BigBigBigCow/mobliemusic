@@ -1,10 +1,13 @@
 export default {
+  // 获取storage
   getStorage (name) {
     return window.localStorage.getItem(name) || ''
   },
+  // 设置storage
   setStorage (name, val) {
     window.localStorage.setItem(name, val)
   },
+  // 毫秒转分钟
   formatSeconds (value) {
     var theTime = parseInt(value)// 秒
     var middle = 0// 分
@@ -21,22 +24,23 @@ export default {
     var result = '' + parseInt(theTime) + ''
     if (parseInt(theTime) < 10) result = '0' + result
     if (middle >= 0) {
-      result = ''+parseInt(middle)+':'+result
+      result = '' + parseInt(middle) + ':' + result
     }
-    if (hour> 0) {
+    if (hour > 0) {
       result = '' + parseInt(hour) + ':' + result
     }
     return result
   },
+  // 睡眠函数
   sleep (numberMillis) {
-    var now = new Date();
-    var exitTime = now.getTime() + numberMillis;
+    var now = new Date()
+    var exitTime = now.getTime() + numberMillis
     while (true) {
-      now = new Date();
-      if (now.getTime() > exitTime)
-        return;
+      now = new Date()
+      if (now.getTime() > exitTime) { return }
     }
   },
+  // 时间轴转日期
   format (sj) {
   // shijianchuo是整数，否则要parseInt转换
     sj = parseInt(sj)

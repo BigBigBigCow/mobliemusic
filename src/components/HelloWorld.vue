@@ -54,7 +54,7 @@
       <div class="hotop">
         <div class="hotopct">
           <div class="u-hmsprt hoticon"></div>
-          <div class="hottime">更新日期：04月25日</div>
+          <div class="hottime">更新日期：{{update}}</div>
         </div>
       </div>
       <div class="newSong">
@@ -114,7 +114,8 @@ export default {
       showSonglist: false, //  是否显示歌曲列表
       SongList: [], // 歌曲列表
       hotSong: [], // 热门歌曲
-      classArr: []
+      classArr: [],
+      update: '04月25日'
     }
   },
   mounted () {
@@ -124,6 +125,15 @@ export default {
     this.getHotSearch() // 获得热搜关键词
     this.searchLog = this.common.getStorage('searchLog') || []
     if (this.searchLog.length > 0) this.searchLog = this.searchLog.split(',')
+    let date = new Date()
+    // console.log(date.getDay(), date.getDate(), date.getMonth())
+    if (date.getDay() === 4) {
+      let today = date.getDate()
+      let Month = date.getMonth() + 1
+      if (today < 10) today = '0' + today
+      if (Month < 10) Month = '0' + Month
+      this.update = `${Month}月${today}日`
+    }
   },
   methods: {
     playListDetail (id) {
@@ -318,6 +328,9 @@ export default {
   margin-left: 2px;
   box-sizing: border-box;
   /*padding-right: 2px;*/
+}
+.ream-ul .ream-li div img{
+  min-height: 120px;
 }
 .ream-ul .ream-li div span{
   position: absolute;

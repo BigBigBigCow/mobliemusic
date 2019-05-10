@@ -3,7 +3,7 @@
 <!--    <img src="./assets/logo.png">-->
 <!--    <v-touch v-on:swipeleft="onSwipeLeft" v-on:swiperight="onSwipeRight"  tag="div">-->
 <!--      <transition :name="transitionName">-->
-    <keep-alive>
+    <keep-alive include="HelloWorld">
           <router-view class="Router"></router-view>
     </keep-alive>
 <!--      </transition>-->
