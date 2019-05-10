@@ -3,7 +3,7 @@
 <!--      {{id}}-->
       <div class="play_bg" :style="bgStyle"></div>
       <div class="play_content">
-        <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" controls preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
+        <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
         <div class="play_body">
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
