@@ -34,6 +34,8 @@ export default {
       this.$parent.searchName = ''
       // this.$emit('input', this.value) // 触发 input 事件，并传入新值
       this.$parent.showSonglist = false
+      this.$parent.SongList = []
+      this.$parent.searchPage = 0
       // TagName('input').focus()
       this.getFocus()
     },

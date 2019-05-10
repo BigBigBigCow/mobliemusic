@@ -23,7 +23,7 @@ export default {
       let params = {}
       const url = `http://localhost:8000/api/search?name=心安理得&type=1&limit=10&offset=0`
       fetch(url, params).then((res) => {
-        console.log(res)
+        // console.log(res)
         /* let {data} = res
         if (data.success === ERR_OK) {
           // 请求成功操作，存储token

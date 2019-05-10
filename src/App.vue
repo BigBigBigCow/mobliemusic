@@ -21,10 +21,10 @@ export default {
   },
   methods: {
     onSwipeLeft () {
-      console.log('向左滑动')
+      // console.log('向左滑动')
     },
     onSwipeRight () {
-      console.log('向右滑动')
+      // console.log('向右滑动')
       this.$router.goBack()
     }
   },

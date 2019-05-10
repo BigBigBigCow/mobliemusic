@@ -66,9 +66,9 @@
         </div>
       </div>
     </div>
-    <div class="nevaBarPage" v-show="nevaBarId === 3">
+    <div class="nevaBarPage" v-show="nevaBarId === 3" @scroll="scrollToEnd">
       <search v-model="searchName" :keyEnter="search" ref="input"></search>
-      <div class="search-i" v-if="!showSonglist">
+      <div class="search-i" v-show="!showSonglist">
         热门搜索
         <div class="search-hot">
           <span  v-for="(item, index) in hotSearch" :key="index" @click="search(item.first)">{{item.first}}</span>
@@ -83,7 +83,7 @@
           </div>
         </div>
       </div>
-      <div class="search-l" v-else>
+      <div class="search-l" v-show="showSonglist">
 <!--         歌曲显示固定格式-->
         <div class="newSong">
           <div class="newSong_li" v-for="(item, index) in SongList" :key="index" @click="goPlayInfo(item.songId)">
@@ -107,6 +107,7 @@ export default {
     return {
       nevaBarId: 0, // topbar
       searchName: [], // 搜索框内容
+      searchPage: 0, // 搜索页码
       searchLog: [], // 搜索记录
       playList: [], // 歌单
       newSongs: [], // 最新音乐
@@ -136,6 +137,28 @@ export default {
     }
   },
   methods: {
+    scrollToEnd (e) {
+      // console.log(e)
+      // 变量scrollTop是滚动条滚动时，距离顶部的距离
+      let scrollTop = e.target.scrollTop
+      // 变量windowHeight是可视区的高度
+      let windowHeight = e.target.clientHeight
+      // 变量scrollHeight是滚动条的总高度
+      let scrollHeight = e.target.scrollHeight
+      // 滚动条到底部的条件
+      // console.log('距顶部' + scrollTop + '可视区高度' + windowHeight + '滚动条总高度' + scrollHeight)
+      /* if (scrollTop + windowHeight > scrollHeight) {
+        // console.log('到达底部')
+        this.mint.Toast({
+          message: '到底'
+        })
+      } */
+      if (scrollTop + windowHeight === scrollHeight) {
+        console.log('到达底部')
+        this.searchPage++
+        this.search(this.searchName)
+      }
+    },
     playListDetail (id) {
       this.$router.push(`/playList?id=${id}`)
     },
@@ -154,7 +177,7 @@ export default {
     getHotSong () {
       this.$get(`${this.domin}/api/top/list?idx=1`, {}).then(response => {
         // alert('成功！')
-        console.log(response)
+        // console.log(response)
         let data = response.body.result
         let item = []
         for (let i = 0; i < 100; i++) {
@@ -178,7 +201,7 @@ export default {
     getNewSong () {
       this.$get(`${this.domin}/api/personalized/newsong`, {}).then(response => {
         // alert('成功！')
-        console.log(response.body.result)
+        // console.log(response.body.result)
         this.newSongs = response.body.result
       })
     },
@@ -186,18 +209,23 @@ export default {
     getPersonalized () {
       this.$get(`${this.domin}/api/personalized?limit=6`, {}).then(response => {
         // alert('成功！')
-        console.log(response)
+        // console.log(response)
         this.playList = response.body.result
       })
     },
     // 歌曲搜索
     search (name) {
       this.$refs.input.overFocus()
-      if (!name) name = this.searchName
-      else this.searchName = name
+      if (!name) {
+        name = this.searchName
+        this.SongList = []
+        this.searchPage = 0
+      } else {
+        this.searchName = name
+      }
       if (name === '') return
-      console.log(name)
-      this.$get(`${this.domin}/api/search?name=${name}`, {}).then(response => {
+      // console.log(name)
+      this.$get(`${this.domin}/api/search?name=${name}&offset=${this.searchPage}`, {}).then(response => {
         // alert('成功！')
         if (this.searchLog.includes(name)) {
           for (let i in this.searchLog) {
@@ -210,18 +238,18 @@ export default {
         this.common.setStorage('searchLog', this.searchLog.join(','))
         // this.poemDetails.content = poemData[0].content.replace(/\|/g, '<br>').replace(new RegExp(this.poem.content, 'g'), "<span style='color: #F56C6C;'>$&</span>")
         this.showSonglist = true
-        console.log(response)
+        // console.log(response)
         let SongList = response.body.result.songs
         for (let i in SongList) {
           SongList[i].title = SongList[i].title.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
           SongList[i].special = SongList[i].special.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
           SongList[i].author = SongList[i].author.replace(/\|/g, '<br>').replace(new RegExp(name, 'g'), "<span style='color: #507daf;'>$&</span>")
         }
-        this.SongList = SongList
+        this.SongList = [...this.SongList, ...SongList]
       })
     },
     closeLog (name) {
-      console.log(name)
+      // console.log(name)
       for (let i in this.searchLog) {
         if (this.searchLog[i] === name) {
           // this.classArr[i] = true
@@ -235,7 +263,7 @@ export default {
   },
   watch: {
     nevaBarId: function (newVal) {
-      console.log(newVal)
+      // console.log(newVal)
       if (newVal === 1 && this.newSongs.length < 1) this.getNewSong() // 获取最新歌曲
       else if (newVal === 2 && this.hotSong.length < 1) this.getHotSong() // 获取最新歌曲
       else if (newVal === 3) {

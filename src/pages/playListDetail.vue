@@ -52,7 +52,7 @@ export default {
     }
   },
   activated () {
-    console.log(this.$route.query.id, this.id)
+    // console.log(this.$route.query.id, this.id)
     if (this.$route.query.id === this.id) {
       document.title = this.playlist.name ? this.playlist.name : '--'
       return
@@ -71,7 +71,7 @@ export default {
     getPlaylistDetail () {
       // if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/playlist/detail?id=${this.id}`, {}).then(response => {
-        console.log(response)
+        // console.log(response)
         document.title = response.body.playlist.name
         this.playlist = response.body.playlist
         this.privileges = response.body.privileges

@@ -16,7 +16,7 @@
             </div>
           </div>
         </div>
-        <div class="play_songInfo ellips" v-if="song[0]">{{song[0].name}}-{{song[0].author}}</div>
+        <div class="play_songInfo ellips" v-if="song[0]">{{song[0].name}} - {{song[0].author}}</div>
         <div class="play_lyric" :style="{height:lyricHeight>36?'210px':''}">
           <div id="lyric" style="position: relative;" :style="lyricIndex>0?'bottom:'+lyricHeight * (lyricIndex - 1) + 'px':''">
               <span v-for="(item, index) in lyric" :key="index" :class="lyricIndex == index?'fff':''" style="box-sizing: border-box;transition: color 300ms ease-in-out;" :style="{'height':lyricHeight+'px'}">
@@ -100,7 +100,7 @@ export default {
     this.getLyric()
   },
   mounted () {
-    console.log(456)
+    // console.log(456)
     this.audio = document.querySelector('#audio')
     this.getSongDetails()
     this.getSongComments()
@@ -134,6 +134,7 @@ export default {
         if (that.audio.currentTime >= that.audio.duration) {
           that.isPlay = false
         }
+        // console.log(that.audio.currentTime)
         that.getLyricText()
       })
     })
@@ -235,7 +236,7 @@ export default {
     getSongComments () {
       if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/song/comment?id=${this.id}`, {}, false).then(response => {
-        console.log(response)
+        // console.log(response)
         this.songComment = response.body.hotComments
       })
     },
@@ -264,7 +265,7 @@ export default {
             c: tlyric[i].substring(tlyric[i].indexOf(']') + 1, tlyric[i].length)
           })
         }
-        console.log(TwordArr)
+        // console.log(TwordArr)
         this.lyric = wordArr
         if (TwordArr.length > 0) {
           this.tlyric = TwordArr
@@ -278,7 +279,7 @@ export default {
       // if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/simi/playlist?id=${this.id}`, {}).then(response => {
         // this.song = response.body.songs
-        console.log(response)
+        // console.log(response)
         this.incoludPlayList = response.body.playlists
         /* this.styleObj = {
           'color': `#ccc`
