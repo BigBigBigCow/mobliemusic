@@ -66,7 +66,11 @@ export default {
   methods: {
     goPlayInfo (index) {
       let id = this.playlist.trackIds[index].id
-      this.$router.push(`/play?id=${id}`)
+      // this.$router.push(`/play?id=${id}`)
+      this.$parent.isShow = true
+      setTimeout(() => {
+        this.$parent.changePlayId(id)
+      }, 300)
     },
     getPlaylistDetail () {
       // if (!this.id) this.id = this.$route.query.id
@@ -77,6 +81,15 @@ export default {
         this.privileges = response.body.privileges
         // this.songComment = response.body.hotComments
       })
+    }
+  },
+  watch: {
+    '$route' (to, from) {
+      console.log(to, from)
+      if (from.query.id !== to.query.id) {
+        this.id = to.query.id
+        this.getPlaylistDetail()
+      }
     }
   }
 }

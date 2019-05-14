@@ -6,6 +6,7 @@
     <keep-alive include="HelloWorld">
           <router-view class="Router"></router-view>
     </keep-alive>
+    <router-view name="play" ref="play" class="Router" style="z-index:20;position: fixed;overflow: auto;" :style="isShow?'':'top:100%;'"></router-view>
 <!--      </transition>-->
 <!--    </v-touch>-->
   </div>
@@ -16,7 +17,8 @@ export default {
   name: 'App',
   data () {
     return {
-      transitionName: 'slideleft'
+      transitionName: 'slideleft',
+      isShow: false
     }
   },
   methods: {
@@ -26,6 +28,9 @@ export default {
     onSwipeRight () {
       // console.log('向右滑动')
       this.$router.goBack()
+    },
+    changePlayId (id) {
+      this.$refs.play.id = id
     }
   },
   watch: {
@@ -58,9 +63,9 @@ export default {
   right: 0;
   width: 100%;
   height: 100%;
-  transition: all .5s ease;
-  -webkit-transition: all .5s ease;
-  -moz-transition: all .5s ease;
+  transition: all .3s linear;
+  -webkit-transition: all .3s linear;
+  -moz-transition: all .3s linear;
 }
 .slideleft-enter,
 .slideright-leave-active {

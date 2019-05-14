@@ -4,6 +4,7 @@
       <div class="play_bg" :style="bgStyle"></div>
       <div class="play_content">
         <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
+        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="$parent.isShow = false"><i class="iconfont big-shousuo" style="font-size: 30px;color: #fff;"></i></div>
         <div class="play_body">
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
@@ -49,7 +50,8 @@
             </div>
             <div class="cmt_wrap">
               <div class="cmt_wrap_head">
-                <div style="color: hsla(0,0%,100%,.7);font-size: 14px;">{{item.user.nickname}}<i class="icon-vip" v-if="item.user.vipType !== 0"></i><span style="float: right;padding-right: 10px;" @click="item.liked?'':item.likedCount++;item.liked=true;">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
+                <div style="color: hsla(0,0%,100%,.7);font-size: 14px;">{{item.user.nickname}}<i class="icon-vip" v-if="item.user.vipType !== 0"></i>
+                  <span style="float: right;padding-right: 10px;" @click="item.liked?'':item.likedCount++;item.liked=true;">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
                 <div style="color:hsla(0,0%,100%,.3);font-size: 12px;">{{common.format(item.time)}}</div>
               </div>
               <div class="cmt_wrap_bd">
@@ -71,7 +73,7 @@ export default {
   name: 'play',
   data: function () {
     return {
-      id: this.$route.query.id,
+      id: this.common.getStorage('playId') || 2526628,
       song: [],
       isPlay: false,
       audio: '',
@@ -91,7 +93,7 @@ export default {
       document.title = this.song[0].name + '--' + this.song[0].author
       return
     }
-    this.id = this.$route.query.id
+    this.id = this.$route.query.id || 2526628
     this.incoludPlayList = []
     this.songComment = []
     this.getSongDetails()
@@ -100,6 +102,7 @@ export default {
     this.getLyric()
   },
   mounted () {
+    console.log(this.$parent.transitionName)
     // console.log(456)
     this.audio = document.querySelector('#audio')
     this.getSongDetails()
@@ -125,6 +128,9 @@ export default {
     })
     this.audio.addEventListener(`canplay`, function () {
       console.log('加载完成！！！')
+      if (that.isPlay) {
+        that.audio.play()
+      }
       /* that.mint.Toast({
         message: '加载完成！！！',
         position: 'bottom'
@@ -153,7 +159,8 @@ export default {
       if (this.song[0]) str = this.song[0].al.pic_str || ''
       return {
         'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=600y600)`,
-        'opacity': this.song[0] ? 0.9 : 1
+        // 'opacity': this.song[0] ? 0.9 : 1,
+        'top': this.$parent.isShow ? '' : '100%'
       }
     }
   },
@@ -162,7 +169,14 @@ export default {
       // this.$router.go(-1)
       // console.log(this.$router)
       // console.log(this.$parent.$route, this.$route)
-      this.$router.push(`/playList?id=${id}`)
+      this.$parent.isShow = false
+      // this.$router.replace(`/playList?id=${id}`)
+      console.log(this.$route)
+      if (this.$route.name !== 'playList') {
+        this.$router.push(`/playList?id=${id}`)
+      } else {
+        this.$router.replace(`/playList?id=${id}`)
+      }
     },
     getLyricText () {
       let ct = this.audio.currentTime
@@ -217,6 +231,7 @@ export default {
     // 获得歌曲详细信息
     getSongDetails () {
       if (!this.id) this.id = this.$route.query.id
+      this.common.setStorage('playId', this.id)
       this.$get(`${this.domin}/api/song/detail?ids=${this.id}`, {}).then(response => {
         this.song = response.body.songs
         let data = response.body.songs[0]
@@ -286,6 +301,23 @@ export default {
         } */
       })
     }
+  },
+  watch: {
+    id (newval) {
+      // this.isPlay = true
+      this.lyricIndex = 0
+      /* if (this.$route.query.id === this.id) {
+        document.title = this.song[0].name + '--' + this.song[0].author
+        return
+      } */
+      this.id = newval || 2526628
+      this.incoludPlayList = []
+      this.songComment = []
+      this.getSongDetails()
+      this.getSongComments()
+      this.getSimiPlaylist()
+      this.getLyric()
+    }
   }
 }
 </script>
@@ -324,7 +356,7 @@ export default {
   top: 0;
   height: 100%;
   overflow: hidden;
-  transition: opacity .3s linear;
+  transition: opacity,top .3s linear;
   z-index: -11;
   filter:brightness(50%);
 }

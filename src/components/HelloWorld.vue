@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <div style="height: 40px;width: 100%;background-color: #C20C0C;text-align: center;position: fixed;z-index: 9;">
+    <div style="height: 40px;width: 100%;background-color: #C20C0C;text-align: center;position: fixed;z-index: 9;" @click="$parent.isShow = true">
 <!--      <img src="../../static/img/format.png" class="autImg" style="cursor: pointer;">-->
       <span class="text">Cloudmusic</span>
     </div>
@@ -171,7 +171,11 @@ export default {
     },
     // 去歌曲播放页
     goPlayInfo (id) {
-      this.$router.push(`/play?id=${id}`)
+      // this.$router.push(`/play?id=${id}`)
+      this.$parent.isShow = true
+      setTimeout(() => {
+        this.$parent.changePlayId(id)
+      }, 300)
     },
     // 获得热门歌曲
     getHotSong () {
