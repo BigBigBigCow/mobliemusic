@@ -31,10 +31,11 @@ export default new Router({
     {
       path: '/',
       name: 'HelloWorld',
-      components: {
+      /* components: {
         default: (resolve) => require(['@/components/HelloWorld'], resolve),
         play: (resolve) => require(['@/pages/play'], resolve)
-      }
+      } */
+      component: (resolve) => require(['@/components/HelloWorld'], resolve)
     }, {
       path: '/Home',
       name: 'Home',
@@ -46,10 +47,7 @@ export default new Router({
     }, {
       path: '/playList',
       name: 'playList',
-      components: {
-        default: (resolve) => require(['@/pages/playListDetail'], resolve),
-        play: (resolve) => require(['@/pages/play'], resolve)
-      }
+      component: (resolve) => require(['@/pages/playListDetail'], resolve)
     }
   ]
 })

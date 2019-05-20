@@ -1,10 +1,12 @@
 <template>
     <div class="play" >
 <!--      {{id}}-->
-      <div class="play_bg" :style="bgStyle"></div>
+      <div class="play_bg" id="bg" :style="bgStyle"></div>
       <div class="play_content">
         <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
-        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="$parent.isShow = false"><i class="iconfont big-shousuo" style="font-size: 30px;color: #fff;"></i></div>
+        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="$parent.isShow = false">
+          <i class="iconfont big-xia1" id="rotate" style="transform: rotateX(180deg);font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
+        </div>
         <div class="play_body">
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
@@ -26,44 +28,47 @@
               </span>
           </div>
         </div>
-        <div style="height: 20px;line-height: 20px;padding: 20px 0;">
-          <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
-        </div>
-        <div class="ream-ul">
-          <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
-            <div>
-              <img :src="item.coverImgUrl+'?param=300y300'" alt="">
-              <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
-            </div>
-            <span class="remd_text ellips">{{item.name}}</span>
-            <span class="remd_text ellips" style="color: hsla(0,0%,100%,.6);">by {{item.creator.nickname}}</span>
+        <span v-show="bool">
+          <div style="height: 20px;line-height: 20px;padding: 20px 0;" v-if="incoludPlayList.length>0">
+            <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
           </div>
-        </div>
-        <div style="height: 20px;line-height: 20px;padding: 20px 0;">
-          <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">精彩评论</span>
-        </div>
-        <div class="cmt">
-          <div class="cmt_item" v-for="(item, index) in songComment" :key="index">
-            <div class="cmt_head">
-              <img :src="item.user.avatarUrl + '?param=100y100'">
-              <span v-if="item.user.userType === 4"></span>
-            </div>
-            <div class="cmt_wrap">
-              <div class="cmt_wrap_head">
-                <div style="color: hsla(0,0%,100%,.7);font-size: 14px;">{{item.user.nickname}}<i class="icon-vip" v-if="item.user.vipType !== 0"></i>
-                  <span style="float: right;padding-right: 10px;" @click="item.liked?'':item.likedCount++;item.liked=true;">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
-                <div style="color:hsla(0,0%,100%,.3);font-size: 12px;">{{common.format(item.time)}}</div>
+          <div class="ream-ul" v-if="incoludPlayList.length>0">
+            <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
+              <div>
+                <img :src="item.coverImgUrl+'?param=300y300'" alt="">
+                <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
               </div>
-              <div class="cmt_wrap_bd">
-                <span v-if="item.beReplied[0]">回复<span style='color: #507daf;'>@{{item.beReplied[0].user.nickname}}：</span></span>
-                {{item.content}}
-              </div>
-              <div class="cmt_wrap_bd cmt_wrap_re"  v-if="item.beReplied[0]">
-                @{{item.beReplied[0].user.nickname}}：{{item.beReplied[0].content}}
-              </div>
+              <span class="remd_text ellips">{{item.name}}</span>
+              <span class="remd_text ellips" style="color: hsla(0,0%,100%,.6);">by {{item.creator.nickname}}</span>
             </div>
           </div>
-        </div>
+          <div style="height: 20px;line-height: 20px;padding: 20px 0;">
+            <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">精彩评论</span>
+            <span style="font-size: 16px;color: #ccc;float: right;margin-right: 10px;">{{songComment.totalStr}}</span>
+          </div>
+          <div class="cmt">
+            <div class="cmt_item" v-for="(item, index) in songComment" :key="index">
+              <div class="cmt_head">
+                <img :src="item.user.avatarUrl + '?param=100y100'">
+  <!--              <span v-if="item.user.userType === 4"></span>-->
+              </div>
+              <div class="cmt_wrap">
+                <div class="cmt_wrap_head">
+                  <div style="color: hsla(0,0%,100%,.7);font-size: 14px;">{{item.user.nickname}}<i class="icon-vip" v-if="item.user.vipType !== 0"></i>
+                    <span style="float: right;padding-right: 10px;" @click="item.liked?'':item.likedCount++;item.liked=true;">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
+                  <div style="color:hsla(0,0%,100%,.3);font-size: 12px;">{{common.format(item.time)}}</div>
+                </div>
+                <div class="cmt_wrap_bd">
+                  <span v-if="item.beReplied[0]">回复<span style='color: #507daf;'>@{{item.beReplied[0].user.nickname}}：</span></span>
+                  {{item.content}}
+                </div>
+                <div class="cmt_wrap_bd cmt_wrap_re"  v-if="item.beReplied[0]">
+                  @{{item.beReplied[0].user.nickname}}：{{item.beReplied[0].content}}
+                </div>
+              </div>
+            </div>
+          </div>
+        </span>
       </div>
     </div>
 </template>
@@ -82,7 +87,8 @@ export default {
       lyric: [],
       tlyric: [],
       lyricIndex: 0,
-      lyricHeight: 36
+      lyricHeight: 36,
+      bool: false
     }
   },
   activated () {
@@ -90,7 +96,7 @@ export default {
     this.isPlay = false
     this.lyricIndex = 0
     if (this.$route.query.id === this.id) {
-      document.title = this.song[0].name + '--' + this.song[0].author
+      document.title = this.song[0].name + '-' + this.song[0].author
       return
     }
     this.id = this.$route.query.id || 2526628
@@ -102,7 +108,7 @@ export default {
     this.getLyric()
   },
   mounted () {
-    console.log(this.$parent.transitionName)
+    // console.log(this.$parent.transitionName)
     // console.log(456)
     this.audio = document.querySelector('#audio')
     this.getSongDetails()
@@ -120,21 +126,18 @@ export default {
       this.isPlay = false
     })
     this.audio.addEventListener(`error`, function (error) {
-      console.log(`播放错误!可能是没有版权！！！${error}`)
+      console.log(`播放错误!可能是没有版权！！！`, error)
       that.mint.Toast({
         message: '播放错误!可能是没有版权！！！' + error,
         position: 'bottom'
       })
+      that.isPlay = false
     })
     this.audio.addEventListener(`canplay`, function () {
       console.log('加载完成！！！')
       if (that.isPlay) {
         that.audio.play()
       }
-      /* that.mint.Toast({
-        message: '加载完成！！！',
-        position: 'bottom'
-      }) */
       that.audio.addEventListener(`timeupdate`, function () {
         // console.log('加载完成！！！')
         if (that.audio.currentTime >= that.audio.duration) {
@@ -158,9 +161,9 @@ export default {
       let str = ''
       if (this.song[0]) str = this.song[0].al.pic_str || ''
       return {
-        'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=600y600)`,
+        'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=600y600)`
         // 'opacity': this.song[0] ? 0.9 : 1,
-        'top': this.$parent.isShow ? '' : '100%'
+        // 'top': this.$parent.isShow ? '' : '100%'
       }
     }
   },
@@ -171,12 +174,15 @@ export default {
       // console.log(this.$parent.$route, this.$route)
       this.$parent.isShow = false
       // this.$router.replace(`/playList?id=${id}`)
-      console.log(this.$route)
-      if (this.$route.name !== 'playList') {
-        this.$router.push(`/playList?id=${id}`)
-      } else {
-        this.$router.replace(`/playList?id=${id}`)
-      }
+      // console.log(this.$route)
+      setTimeout(() => {
+        if (this.$route.name !== 'playList') {
+          this.$router.push(`/playList?id=${id}`)
+        } else {
+          this.$router.replace(`/playList?id=${id}`)
+        }
+        // console.log(this.$route.name)
+      }, 800)
     },
     getLyricText () {
       let ct = this.audio.currentTime
@@ -239,8 +245,9 @@ export default {
         for (let j = 1; j < data.ar.length; j++) {
           author = author + '/' + data.ar[j].name
         }
-        document.title = response.body.songs[0].name + '--' + data.ar[0].name + author
+        document.title = response.body.songs[0].name + '-' + data.ar[0].name + author
         this.song[0].author = data.ar[0].name + author
+        console.log(this.song[0].author)
         // console.log(response.body.songs[0].al.picUrl)
         /* this.styleObj = {
           'color': `#ccc`
@@ -252,14 +259,30 @@ export default {
       if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/song/comment?id=${this.id}`, {}, false).then(response => {
         // console.log(response)
+        let total = response.body.total
+        // if (response.body.total > 999) total = '999+'
+        // if (response.body.total > 10000) total = '1W+'
+        // if (response.body.total > 100000) total = '10W+'
         this.songComment = response.body.hotComments
+        if (response.body.hotComments.length < 1) {
+          this.songComment = response.body.comments
+        }
+        this.songComment.totalStr = total
       })
     },
     // 获得歌曲歌词
     getLyric () {
+      this.lyric = []
       if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/lyric?id=${this.id}`, {}, false).then(response => {
         // console.log(response.body.lrc.lyric)
+        if (!response.body.lrc) {
+          this.lyric = [{
+            t: 0,
+            c: '暂无歌词'
+          }]
+          return
+        }
         let lyric = response.body.lrc.lyric.split('\n')
         let tlyric = response.body.tlyric.lyric ? response.body.tlyric.lyric.split('\n') : [] // 翻译
         // console.log(lyric)
@@ -304,19 +327,38 @@ export default {
   },
   watch: {
     id (newval) {
-      // this.isPlay = true
+      this.isPlay = false
       this.lyricIndex = 0
       /* if (this.$route.query.id === this.id) {
         document.title = this.song[0].name + '--' + this.song[0].author
         return
       } */
       this.id = newval || 2526628
+      this.audio.addEventListener(`canplay`, () => {
+        this.audio.play()
+      })
       this.incoludPlayList = []
       this.songComment = []
       this.getSongDetails()
       this.getSongComments()
       this.getSimiPlaylist()
       this.getLyric()
+    },
+    '$parent.isShow' (newval) {
+      console.log(newval)
+      if (newval) {
+        setTimeout(() => {
+          document.getElementById('rotate').style.transform = 'rotateX(0deg)'
+          document.getElementById('bg').style.transform = 'scale(1.6)'
+          this.bool = true
+        }, 550)
+      } else {
+        document.getElementById('rotate').style.transform = 'rotateX(180deg)'
+        document.getElementById('bg').style.transform = 'scale(1.5)'
+        setTimeout(() => {
+          this.bool = false
+        }, 550)
+      }
     }
   }
 }
@@ -339,9 +381,13 @@ export default {
   width: 100%;
 }
 .play_content{
+  /*overflow-y: scroll;*/
+  /*overflow: auto;*/
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
   overflow-y: scroll;
+  height: 100%;
+  max-height: 100%;
 }
 .play_bg{
   background-color: #5a5a5a;
@@ -350,13 +396,15 @@ export default {
   /*background-size: auto 100%;*/
   transform: scale(1.5);
   transform-origin: center top;
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
   top: 0;
   height: 100%;
   overflow: hidden;
-  transition: opacity,top .3s linear;
+  transition: all .3s ease-in-out;
+  /* 解决safari动画过渡不流畅的问题 */
+  -webkit-transform-style: preserve-3d;
   z-index: -11;
   filter:brightness(50%);
 }
@@ -444,7 +492,7 @@ export default {
   box-sizing: border-box;
   /*padding-right: 2px;*/
 }
-.ream-ul .ream-li div img{
+.ream-ul .ream-li div{
   min-height: 120px;
 }
 .ream-ul .ream-li div span{
@@ -479,6 +527,7 @@ export default {
 }
 .cmt_item{
   margin: 6px 0;
+  position: relative;
 }
 .cmt_head{
   position: absolute;

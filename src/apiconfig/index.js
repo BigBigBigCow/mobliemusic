@@ -2,7 +2,11 @@ import axios from 'axios'
 // import { Loading, Message } from 'element-ui'
 import { Indicator, Toast } from 'mint-ui'
 export let beasUrl = 'http://localhost:8000'
-// export let beasUrl = 'http://101.132.138.74'
+if (document.domain === 'localhost') {
+  beasUrl = 'http://localhost:8000'
+} else {
+  beasUrl = 'http://101.132.138.74'
+}
 axios.defaults.timeout = 20000
 axios.defaults.baseURL = ''
 function startLoading () {

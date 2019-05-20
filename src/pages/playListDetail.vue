@@ -1,5 +1,5 @@
 <template>
-    <div style="background-color: #f8f8f8;">
+    <div style="-webkit-overflow-scrolling: touch;overflow-scrolling: touch;background-color: #f8f8f8;">
 <!--      {{id}}-->
       <div class="playlist-aut" >
         <div class="playlist_bg" style="background-image: url(//music.163.com/api/img/blur/109951164029082706?param=170y170);"></div>
@@ -21,11 +21,12 @@
           标签：
           <span v-for="(item, index) in playlist.tags" :key="index">{{item}}</span>
         </div>
-        <div class="intro-textr" v-if="playlist.description">
+        <div class="intro-textr" v-if="playlist.description" :style="isShowDescription ? 'height:auto;display: inline-block;' : ''">
           简介：
-          <span>{{playlist.description}}</span>
+          <span v-html="playlist.description"></span>
         </div>
       </div>
+      <div style="text-align: right;padding: 0 10px;" @click="showDescription()"><i class="iconfont big-xia1" style="display: inline-block;" :class="isShowDescription ? 'rotate180' : ''"></i></div>
       <div style="height: 20px;line-height: 20px;padding: 0 0 20px 0;">
         <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;">歌曲列表
           <i style="font-size: 15px;color: #ccc" v-if="playlist.tracks">({{playlist.tracks.length || ''}})</i>
@@ -48,7 +49,8 @@ export default {
     return {
       id: this.$route.query.id,
       playlist: {},
-      privileges: {}
+      privileges: {},
+      isShowDescription: false
     }
   },
   activated () {
@@ -70,22 +72,30 @@ export default {
       this.$parent.isShow = true
       setTimeout(() => {
         this.$parent.changePlayId(id)
-      }, 300)
+      }, 800)
     },
     getPlaylistDetail () {
       // if (!this.id) this.id = this.$route.query.id
       this.$get(`${this.domin}/api/playlist/detail?id=${this.id}`, {}).then(response => {
         // console.log(response)
         document.title = response.body.playlist.name
+        console.log(response.body.playlist.description)
+        while (response.body.playlist.description.indexOf('\n') >= 0) {
+          response.body.playlist.description = response.body.playlist.description.replace('\n', '<br/>')
+        }
+        // console.log(response.body.playlist.description.indexOf('\r\n'), response.body.playlist.description.indexOf('\n'), response.body.playlist.description.indexOf('\r'))
         this.playlist = response.body.playlist
         this.privileges = response.body.privileges
         // this.songComment = response.body.hotComments
       })
+    },
+    showDescription () {
+      this.isShowDescription = !this.isShowDescription
     }
   },
   watch: {
     '$route' (to, from) {
-      console.log(to, from)
+      // console.log(to, from)
       if (from.query.id !== to.query.id) {
         this.id = to.query.id
         this.getPlaylistDetail()
@@ -187,7 +197,7 @@ export default {
   }
   .playlist-intro{
     font-size: 14px;
-    padding: 6px 20px;
+    padding: 6px 20px 0;
   }
   .playlist-intro .intro-tag span{
     border: 1px solid #ccc;
@@ -202,6 +212,7 @@ export default {
     line-height: 1.6;
     font-size: 15px;
     height: 70px;
+    min-height: 70px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;

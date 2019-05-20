@@ -1,15 +1,15 @@
 <template>
   <div class="hello">
-    <div style="height: 40px;width: 100%;background-color: #C20C0C;text-align: center;position: fixed;z-index: 9;" @click="$parent.isShow = true">
+    <div style="height: 40px;width: 100%;background-color:#d43c33;text-align: center;position: fixed;z-index: 9;" @click="$parent.isShow = true">
 <!--      <img src="../../static/img/format.png" class="autImg" style="cursor: pointer;">-->
       <span class="text">Cloudmusic</span>
     </div>
     <div class="nevaBar">
       <div @click="nevaBarFun(1)"><span :class="nevaBarId === 1?'action':''">推荐歌单</span></div>
       <div @click="nevaBarFun(2)"><span :class="nevaBarId === 2?'action':''">热歌榜</span></div>
-      <div @click="nevaBarFun(3)"><span
-        :class="nevaBarId === 3?'action':''">搜索</span></div>
+      <div @click="nevaBarFun(3)"><span :class="nevaBarId === 3?'action':''">搜索</span></div>
     </div>
+    <div class="nevaBerBorder"></div>
     <div class="nevaBarPage" v-show="nevaBarId === 1">
 <!--      推荐歌单<i class="iconfont big-sousuo3"></i>-->
       <div style="height: 20px;line-height: 20px;padding: 20px 0;">
@@ -19,7 +19,7 @@
       <div class="ream-ul">
         <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index < 3" @click="playListDetail(item.id)">
           <div>
-            <img :src="item.picUrl+'?param=300y300'" alt="">
+            <img :src="item.picUrl+'?param=30y30'" alt="" class="picImg">
             <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
           </div>
           <span class="remd_text">{{item.name}}</span>
@@ -28,7 +28,7 @@
       <div class="ream-ul">
         <div class="ream-li" v-for="(item, index) in playList" :key="index" :style="index%3 === 0?'margin-left:0;':''" v-if="index >= 3" @click="playListDetail(item.id)">
           <div>
-            <img :src="item.picUrl+'?param=300y300'" alt="">
+            <img :src="item.picUrl+'?param=30y30'" alt="" class="picImg">
             <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
           </div>
           <span class="remd_text">{{item.name}}</span>
@@ -128,9 +128,24 @@ export default {
     if (this.searchLog.length > 0) this.searchLog = this.searchLog.split(',')
     let date = new Date()
     // console.log(date.getDay(), date.getDate(), date.getMonth())
+    let nowTime = date.getTime()
+    let oneDayLong = 24 * 60 * 60 * 1000
+    let today = date.getDate()
     if (date.getDay() === 4) {
-      let today = date.getDate()
       let Month = date.getMonth() + 1
+      if (today < 10) today = '0' + today
+      if (Month < 10) Month = '0' + Month
+      this.update = `${Month}月${today}日`
+    } else {
+      let Thursday = ''
+      if (date.getDay() > 4) {
+        Thursday = nowTime - (date.getDay() - 4) * oneDayLong
+      } else {
+        Thursday = nowTime - (date.getDay() + 7 - 4) * oneDayLong
+      }
+      let orDate = new Date(Thursday)
+      let Month = orDate.getMonth() + 1
+      let today = orDate.getDate()
       if (today < 10) today = '0' + today
       if (Month < 10) Month = '0' + Month
       this.update = `${Month}月${today}日`
@@ -155,8 +170,10 @@ export default {
       } */
       if (scrollTop + windowHeight === scrollHeight) {
         console.log('到达底部')
-        this.searchPage++
-        this.search(this.searchName)
+        if (this.showSonglist) {
+          this.searchPage++
+          this.search(this.searchName)
+        }
       }
     },
     playListDetail (id) {
@@ -175,7 +192,7 @@ export default {
       this.$parent.isShow = true
       setTimeout(() => {
         this.$parent.changePlayId(id)
-      }, 300)
+      }, 800)
     },
     // 获得热门歌曲
     getHotSong () {
@@ -215,6 +232,23 @@ export default {
         // alert('成功！')
         // console.log(response)
         this.playList = response.body.result
+        // 更换成更加清晰的图片
+        setTimeout(() => {
+          let picImg = document.getElementsByClassName('picImg')
+          // console.log(picImg)
+          for (let i = 0; i < picImg.length; i++) {
+            // console.log(picImg[i].complete)
+            if (picImg[i].complete) {
+              picImg[i].src = picImg[i].src.split('?')[0] + '?param=300y300'
+              continue
+            }
+            picImg[i].onload = function (e) {
+              console.log('111111111111111', e)
+              e.target.src = e.target.src.split('?')[0] + '?param=300y300'
+              e.target.onload = function () {}
+            }
+          }
+        }, 200)
       })
     },
     // 歌曲搜索
@@ -268,6 +302,12 @@ export default {
   watch: {
     nevaBarId: function (newVal) {
       // console.log(newVal)
+      let wid = document.getElementsByClassName('nevaBar')
+      let Client = wid[0].children[newVal - 1].children[0].getBoundingClientRect()
+      console.log(Client)
+      document.getElementsByClassName('nevaBerBorder')[0].style.width = Client.width + 'px'
+      document.getElementsByClassName('nevaBerBorder')[0].style.left = Client.x + 'px'
+      console.log(document.getElementsByClassName('nevaBerBorder')[0])
       if (newVal === 1 && this.newSongs.length < 1) this.getNewSong() // 获取最新歌曲
       else if (newVal === 2 && this.hotSong.length < 1) this.getHotSong() // 获取最新歌曲
       else if (newVal === 3) {
@@ -300,15 +340,8 @@ export default {
 .hello{
   font-size: 12px;
 }
-.text{
-  font-family: sans-serif;
-  font-size: 30px;
-  cursor: pointer;
-  color: #fff;
-}
 .action{
   color:#C20C0C;
-  border-bottom: 2px #C20C0C solid;
 }
 .nevaBar{
   z-index: 8;
@@ -320,6 +353,15 @@ export default {
   border-bottom: 1px solid #ccc;
   position: fixed;
   top: 40px;
+}
+.nevaBerBorder{
+  background-color: #C20C0C;
+  width: 100px;
+  height: 2px;
+  position: fixed;
+  top: 78px;
+  z-index: 9;
+  transition: all .3s;
 }
 .nevaBar div{
   width: 32%;
@@ -341,8 +383,8 @@ export default {
   top: 80px;
   width: 100%;
   height: calc(100% - 81px);
-  overflow: auto;
   background-color: #fbfcfd;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
   overflow-y: scroll;

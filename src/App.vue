@@ -6,13 +6,17 @@
     <keep-alive include="HelloWorld">
           <router-view class="Router"></router-view>
     </keep-alive>
-    <router-view name="play" ref="play" class="Router" style="z-index:20;position: fixed;overflow: auto;" :style="isShow?'':'top:100%;'"></router-view>
+<!--    <router-view name="play" ></router-view>-->
 <!--      </transition>-->
 <!--    </v-touch>-->
+    <transition name="slide-fade">
+      <play ref="play" id="play" class="Router" style="z-index:20;position: fixed;" v-show="isShow"></play>
+    </transition>
   </div>
 </template>
 
 <script>
+import Play from './pages/play'
 export default {
   name: 'App',
   data () {
@@ -20,6 +24,23 @@ export default {
       transitionName: 'slideleft',
       isShow: false
     }
+  },
+  mounted () {
+    /* let app = document.getElementById('play')
+    let first = app.getBoundingClientRect()
+    app.classList.add('app-to-end')
+    let last = app.getBoundingClientRect()
+    let invert = first.top - last.top
+    // 使元素看起来好像在起始点
+    app.style.transform = `translateY(${invert}px)`
+    requestAnimationFrame(function () {
+      // 启用tansition，并移除翻转的改变
+      app.classList.add('animate-on-transforms')
+      app.style.transform = ''
+    })
+    app.addEventListener('transitionend', () => {
+      app.classList.remove('animate-on-transforms')
+    }) */
   },
   methods: {
     onSwipeLeft () {
@@ -34,6 +55,13 @@ export default {
     }
   },
   watch: {
+    animation (newval) {
+      console.log(newval)
+    },
+    isShow (newval) {
+      // console.log(this.$refs.play.song[0].author)
+      if (newval) document.title = this.$refs.play.song[0].name + '-' + this.$refs.play.song[0].author
+    },
     $route () { // 监听路由变化重新赋值
       if (this.$router.isleft) {
         this.transitionName = 'slideleft'
@@ -42,6 +70,9 @@ export default {
         this.transitionName = 'slideright'
       }
     }
+  },
+  components: {
+    Play
   }
 }
 </script>
@@ -63,10 +94,22 @@ export default {
   right: 0;
   width: 100%;
   height: 100%;
-  transition: all .3s linear;
-  -webkit-transition: all .3s linear;
-  -moz-transition: all .3s linear;
 }
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 100ms ease-out;
+}
+.slide-fade-enter,
+.slide-fade-leave-to{
+  top: 120%;
+}
+/*.slide-fade-enter{
+  top: 150%;
+  opacity: 0;
+}
+.slide-fade-leave{
+  top: 0;
+  opacity: 1;
+}*/
 .slideleft-enter,
 .slideright-leave-active {
   opacity: 0;
