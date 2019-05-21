@@ -9,9 +9,9 @@
 <!--    <router-view name="play" ></router-view>-->
 <!--      </transition>-->
 <!--    </v-touch>-->
-    <transition name="slide-fade">
-      <play ref="play" id="play" class="Router" style="z-index:20;position: fixed;" v-show="isShow"></play>
-    </transition>
+    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;" :style="styleObj"></play>
+    <!--<transition name="slide-fade">
+    </transition>-->
   </div>
 </template>
 
@@ -23,6 +23,15 @@ export default {
     return {
       transitionName: 'slideleft',
       isShow: false
+    }
+  },
+  computed: {
+    styleObj: function () {
+      return {
+        'height': this.isShow ? '100%' : '80px',
+        'width': this.isShow ? '100%' : '80px',
+        'top': !this.isShow ? '200px' : '0'
+      }
     }
   },
   mounted () {
@@ -95,12 +104,23 @@ export default {
   width: 100%;
   height: 100%;
 }
-.slide-fade-enter-active, .slide-fade-leave-active {
-  transition: all 100ms ease-out;
+@keyframes aaa {
+  0% {
+    top: 120%;
+  }
+  100% {
+    top: 0;
+  }
+}
+.slide-fade-enter-active {
+  animation: aaa .5s;
+}
+.slide-fade-leave-active {
+  animation: aaa .5s reverse;
 }
 .slide-fade-enter,
 .slide-fade-leave-to{
-  top: 120%;
+  top: 0;
 }
 /*.slide-fade-enter{
   top: 150%;

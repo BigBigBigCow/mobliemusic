@@ -1,13 +1,13 @@
 <template>
     <div class="play" >
 <!--      {{id}}-->
-      <div class="play_bg" id="bg" :style="bgStyle"></div>
+      <div class="play_bg" id="bg" :style="bgStyle" v-show="bool"></div>
       <div class="play_content">
         <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
-        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="$parent.isShow = false">
+        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="isShowPlay()" v-show="bool">
           <i class="iconfont big-xia1" id="rotate" style="transform: rotateX(180deg);font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
         </div>
-        <div class="play_body">
+        <div class="play_body" :class="isShowPlayAm">
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
     <!--          {{song[0].al.picUrl}}-->
@@ -15,20 +15,20 @@
                 <img :src="this.song[0]?song[0].al.picUrl+'?param=300y300':''" style="width: 100%;height: 100%;">
               </div>
 <!--              <i class="iconfont big-Play" style="" v-show="!isPlay"></i>-->
-              <span class="playIcon" v-show="!isPlay"></span>
+              <span class="playIcon" v-show="!isPlay" v-if="bool"></span>
             </div>
           </div>
         </div>
-        <div class="play_songInfo ellips" v-if="song[0]">{{song[0].name}} - {{song[0].author}}</div>
-        <div class="play_lyric" :style="{height:lyricHeight>36?'210px':''}">
-          <div id="lyric" style="position: relative;" :style="lyricIndex>0?'bottom:'+lyricHeight * (lyricIndex - 1) + 'px':''">
-              <span v-for="(item, index) in lyric" :key="index" :class="lyricIndex == index?'fff':''" style="box-sizing: border-box;transition: color 300ms ease-in-out;" :style="{'height':lyricHeight+'px'}">
-                {{item.c}}<br>
-                {{tlyric[index]?tlyric[index].c:''}}
-              </span>
-          </div>
-        </div>
         <span v-show="bool">
+          <div class="play_songInfo ellips" v-if="song[0]">{{song[0].name}} - {{song[0].author}}</div>
+          <div class="play_lyric" :style="{height:lyricHeight>36?'210px':''}">
+            <div id="lyric" style="position: relative;" :style="lyricIndex>0?'bottom:'+lyricHeight * (lyricIndex - 1) + 'px':''">
+                <span v-for="(item, index) in lyric" :key="index" :class="lyricIndex == index?'fff':''" style="box-sizing: border-box;transition: color 300ms ease-in-out;" :style="{'height':lyricHeight+'px'}">
+                  {{item.c}}<br>
+                  {{tlyric[index]?tlyric[index].c:''}}
+                </span>
+            </div>
+          </div>
           <div style="height: 20px;line-height: 20px;padding: 20px 0;" v-if="incoludPlayList.length>0">
             <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
           </div>
@@ -88,7 +88,8 @@ export default {
       tlyric: [],
       lyricIndex: 0,
       lyricHeight: 36,
-      bool: false
+      bool: false,
+      isShowPlayAm: ''
     }
   },
   activated () {
@@ -147,6 +148,7 @@ export default {
         that.getLyricText()
       })
     })
+    this.isShowPlayAm = this.$parent.isShow ? 'hidePlayAnimation' : 'showPlayAnimation'
   },
   computed: {
     styleObj: function () {
@@ -160,14 +162,21 @@ export default {
     bgStyle: function () {
       let str = ''
       if (this.song[0]) str = this.song[0].al.pic_str || ''
+      let innerHeight = window.innerHeight
+      // let innerHeight = 600
       return {
-        'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=600y600)`
+        'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=${innerHeight}y${innerHeight})`
         // 'opacity': this.song[0] ? 0.9 : 1,
         // 'top': this.$parent.isShow ? '' : '100%'
       }
     }
   },
   methods: {
+    isShowPlay () {
+      // this.isShowPlayAm = 'hidePlayAnimation'
+      this.$parent.isShow = !this.$parent.isShow
+      // animation: showPlay 300ms linear alternate forwards ;
+    },
     playListDetail (id) {
       // this.$router.go(-1)
       // console.log(this.$router)
@@ -216,6 +225,10 @@ export default {
       // let du = audio
     },
     play () {
+      if (!this.$parent.isShow) {
+        this.$parent.isShow = true
+        return
+      }
       /* console.log(this.audio)
        if (true) {
         this.lyric[0].c = this.audio
@@ -346,18 +359,22 @@ export default {
     },
     '$parent.isShow' (newval) {
       console.log(newval)
+      this.isShowPlayAm = newval ? 'hidePlayAnimation' : 'showPlayAnimation'
       if (newval) {
         setTimeout(() => {
-          document.getElementById('rotate').style.transform = 'rotateX(0deg)'
-          document.getElementById('bg').style.transform = 'scale(1.6)'
           this.bool = true
-        }, 550)
+        }, 250)
+        setTimeout(() => {
+          document.getElementById('bg').style.zIndex = '-11'
+        }, 500)
+        setTimeout(() => {
+          document.getElementById('rotate').style.transform = 'rotateX(0deg)'
+        }, 800)
       } else {
         document.getElementById('rotate').style.transform = 'rotateX(180deg)'
-        document.getElementById('bg').style.transform = 'scale(1.5)'
-        setTimeout(() => {
-          this.bool = false
-        }, 550)
+        // document.getElementById('bg').style.transform = 'scale(1.5)'
+        document.getElementById('bg').style.zIndex = '-10'
+        this.bool = false
       }
     }
   }
@@ -373,6 +390,25 @@ export default {
     transform: rotate(360deg);
   }
 }
+.play_body{
+  height: 360px;
+  width: 360px;
+  margin: 0 auto;
+  align-items: flex-end !important;
+  transition: all .2s;
+}
+.showPlayAnimation{
+  position: absolute;
+  /*z-index: 21;*/
+  width: 80px;
+  height: 80px;
+  /*top: 200px;*/
+}
+.hidePlayAnimation{
+  position: relative;
+  /*z-index: 21;*/
+  top: 0;
+}
 .fff{
   color:#fff !important;
 }
@@ -381,8 +417,6 @@ export default {
   width: 100%;
 }
 .play_content{
-  /*overflow-y: scroll;*/
-  /*overflow: auto;*/
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
   overflow-y: scroll;
@@ -394,8 +428,10 @@ export default {
   background-position-x: 50%;
   background-repeat: no-repeat;
   /*background-size: auto 100%;*/
-  transform: scale(1.5);
+  /*transform: scale(1.5);*/
+  /*-webkit-transform: scale(1.5);*/
   transform-origin: center top;
+  -webkit-transform-origin: center top;
   position: absolute;
   left: 0;
   right: 0;
@@ -404,14 +440,9 @@ export default {
   overflow: hidden;
   transition: all .3s ease-in-out;
   /* 解决safari动画过渡不流畅的问题 */
-  -webkit-transform-style: preserve-3d;
-  z-index: -11;
+  /*-webkit-transform-style: preserve-3d;*/
+  /*z-index: -11;*/
   filter:brightness(50%);
-}
-.play_body{
-  height: 360px;
-  align-items: flex-end !important;
-  /*background: red;*/
 }
 .play_songInfo{
   color: #fff;
@@ -420,19 +451,19 @@ export default {
   text-align: center;
   font-size: 18px;
 }
-.play_body_b,.play_body,.play_body_img_rotate{
+.play_body_b,.play_body_img,.play_body,.play_body_img_rotate{
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .play_body_b{
   position: relative;
-  width: 330px;
-  height: 330px;
+  width: 80%;
+  height: 80%;
 }
 .play_body_img{
-  width: 200px;
-  height: 200px;
+  width: 60%;
+  height: 60%;
   /*padding: 50px 0;*/
   /*background: #000;*/
   border-radius: 50%;
@@ -442,8 +473,8 @@ export default {
   animation:changDeg 18s linear 0.2s infinite;
 }
 .play_body_img_rotate{
-  width: 200px;
-  height: 200px;
+  width: 60%;
+  height: 60%;
   /*background: #000;*/
   border-radius: 50%;
   background-size: contain;
@@ -579,8 +610,8 @@ export default {
   display: inline-block;
   transition:all 300ms linear;
   position: relative;
-  top: 70px;
-  left: 70px;
+  /*top: 70px;*/
+  /*left: 70px;*/
   width: 60px;
   height: 60px;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACoCAMAAABDlVWGAAABJlBMVEUAAAAAAAD////l5eX///9iYmKDg4Pn5+f///9YWFj////09PT////4+Pjt7e3///////9oaGhBQUH////////////////CwsIaGhr///8xMTEkJCT////7+/vp6en///////////////+srKyoqKienp58fHz////y8vKTk5P///8EBAT////////////////V1dW3t7f////////////////////v7++jo6N9fX3///////+UlJT////s7Oz////Nzc3///////+RkZGPj495eXkTExP////////29vb////k5OTPz882Njb////////////c3Nz///////9ycnJsbGz///9dXV3////////Q0ND///9QUFD///////////////////9FeiN6AAAAYXRSTlNmAP3c+oWT3ueB9vA19ealRId5EQbuurpu83RxD/nh05dfAquooo+M7JtzaSolE+vMspJ3Wj7w6KSQj6ucKeXNxLWnmpmObVYd8t3axXZRSt7TvbKLideCeSzHnn4V3Nh6YarbPAAABlRJREFUeNrU14lWEmEYh/GXcdj3HQTZRCkS913UNE2zbLd9Oc/930Q2LmVpwPAC03MD/M5835n/IC6dkqHnzcVoZvdkLp2HfHruZDcTXWw+DyVdOilAt6uNjI8782Ua1W2XjTShtdDSmzRdlH6zFKq5bKQBTS5H57gqXJrP1tsb7kShkBPJFQoJ90a7np0vhblqLrrc8R7oQ4vVPZOLIp8mp8flzsanJ59FuMjcqxZdHVKFxvYDWK1lPQXpooInu4ZVYD/m6pAWNLn0DSvvekJ6KLHuxerb0qyrQwrQViV/oZzKSc/lpi6sgUrLdSN16MyWARBcOBWbnS4EAYytj67r1KGtqMUseaSvPCWLGr14u+pDZysmwFhc+i4+BmBWZgcATTXTFvO9qOS3qOlmShu68g7A6xa13F6A7yuq0ORnA9jZENU2dgDjc1IPGvMB4QNR7+AJ4IspQVObBjDmF+Wur6qxmdKAbpeBoEcGlCcIlLf7hx7lOzxOlYeaP+oTmmoYQFsGWhswGql+oMUMEInLgItHgEzRPvS43OHYVY+/fGwXGvIBkzKU6oAvZA8aywOPZEg9AvIxO9AXAZg4lKF1OAGBF71DX5jw5EyG2NkTMJ/3Co2ZcM8tQ819D8xYb9CVgA2nijSw0gs0tArBzk59aRBWQ91Dj30QjssIiofBd9wttFiGiTMZSWcTUC52B629Bg5lRB0Cr2tdQRvAfRlZ94FGN9AjA+oywupgHHWGzuRhTEbaGORnOkFTZYj4ZaT5I1BOdYBuAnEZcXFg89/QmAFtGXltMGL/ghZ9I7+g19fUV/wHtAJBvzggfxAqd0NXDPCII/KAsXIXNPXOIQd/efjvUndAmxB2xMH/zB+G5u3Qr2k4EMd0AOmvt0IrsCMOagcqt0FbJkyLg5oGs3ULNApecVReiP4NnTHALY7KDcbHv6BbDno1XTUGW39CWwa8F4flB6P1B3TRgQ/UeqSLN6GzAQd83f1dHAKzN6AfoCQOrARLN6Andr9GpiITT9/KwPLAye/QGATFTusAxsOCDKogxH6D7sOC2GkNq+B9GVALsP8LWgzAqdjJ4LJXCRlIpxAoXkOrtteT6yYmH8gg8kL1GroHU/1CoTSQBZ6CvSto0oRc/1DM7GNRLwdm8hK6DF5RgMI9j6jnheVLaBTWdaAwPy7KrUP0Alqbg4QWlPCU6JaAuZoFDcGaqEHh6RdRLQIhC/oBsppQzAXVN1UWlixoBjyqUIhozr8H3vyE1lYhpwnVnv8CpH9CZyAi2lAIPtK8pDPn0Cp8UoWqz/8zqJ5DGzCpCdWf/0lonEMzMK0J1Z//acicQ30wrgnVn/9x8LkkCWFRherPfxiSEgKvLlR//r0QkmWY14Xqz/88LEsTsqpQ/fm3RlQWoa4L1Z//OixKFNq6UP35vw9RycDGMKAYD3P9vEhlF9y6UP35d8OuvISELlR//hPwUqxh0oTqz781TbIKueFB4em4rb/Mq5IfMpRn0nOPIS+ADBUatvcz/w/0B/X2VgMACMNQ9AMnWOADKwT/QuahyZYcDcte7e146X9W+vFmWmEzOeOJGfjMCmWOEubMYw7no7wizHPHvMuMAMFIOo5IxsiOjJDLSOOM2cDYN44hxliMjGnL2OAOWMCgGgz84uBEDKDFIG8ORLhzLPO2Y5kK6PpMdJiBsR28nQkMOBEMJtTixISY4JUTZWPCgVXevesgCINhGG7dZPLEIg7GRRsMTsaoMTEOnmLUuBgn+e//JuTHGt0aKT3y3QIFpj6vO9ctnbnAmr9PIysefn0E0PfhkjW92HFtnQHULn5AAG9aISZGF3NaQYxVrInRrcVYBW4H5vkPEPIfuIV5UGXhClHT8Qv9oXQ/MckoTfb+wVTGqK8ZUl9+4mmUnpGj03pOmzlH5y/w5w6ZiAil+G9qA0KpkfWMTxKsJ6530wel3try9CwjSscg27BTDcw321gHjzyuEjj9IbwP1hPeDqHo2abP0pn5XMR/NhTB/fyo2gv3q0gh1JSkEHCrUuMSG1VxCdxDOtfR1ZDr4AGUwIUACi5JJZMyx1RHUgY3kIn0LBuFQk2EFlv7J3t0+id7JPi86wlJsfm9FUVbQrZR1LrPmQ0hKZfSXC7Fzr5LeD7uGoYBQBCGV56PS2g5ewGy+NkUNbjr9gAAAABJRU5ErkJggg==) 0 0 no-repeat;
