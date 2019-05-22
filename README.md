@@ -1,39 +1,56 @@
 # mobilemusic
 
 #### 介绍
-{**以下是码云平台说明，您可以替换此简介**
 码云是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
 无论是个人、团队、或是企业，都能够用码云实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
 
 #### 软件架构
-软件架构说明
+vue2 + vuex + vue-router + webpack + ES6 + fetch + axios
 
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+
+```
+git clone https://gitee.com/jsBigCow/mobilemusic.git
+
+cd mobilemusic
+
+npm i
+
+```
+
+### 编译环境
+```
+npm run dev
+
+访问 http://localhost:8088
+```
+
+
+### 线上版本
+```
+npm run build
+
+生成的dist文件夹放在服务器即可正常访问
+```
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+>  本项目主要用于熟悉如何用 vue2 架构一个移动端项目 适用于新手学习
 
-#### 参与贡献
+>  如果对您有帮助，您可以点右上角 "Star" 支持一下 谢谢！ ^_^
 
-1. Fork 本仓库
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
+>  本项目纯属学习 无任何商业用途
+
+>  如需使用需搭配接口 [nodeApp](https://gitee.com/jsBigCow/nodeApp.git)
 
 
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+# 目标功能
+- [x] 搜索歌曲 -- 完成
+- [x] 播放歌曲 -- 完成
+- [x] 查看歌曲评论 -- 完成
+- [x] 热歌榜 -- 完成
+- [x] 推荐歌单 -- 完成
+- [x] 查看歌单详情 -- 完成
+- [x] 最新音乐 -- 完成

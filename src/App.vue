@@ -33,7 +33,8 @@ export default {
         'height': this.isShow ? '100%' : '80px',
         'width': this.isShow ? '100%' : '80px',
         'top': !this.isShow ? this.top : '0',
-        'left': !this.isShow ? this.left : '0'
+        'left': !this.isShow ? this.left : '0',
+        'position': this.isShow ? 'absolute' : 'fixed'
       }
     }
   },
