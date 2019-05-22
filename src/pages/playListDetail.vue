@@ -11,7 +11,7 @@
         <div class="playlist-r">
           <span>{{playlist.name}}</span>
           <div style="margin-top: 20px;" v-if="playlist.creator">
-            <div class="r-img"><img :src="playlist.creator.avatarUrl+'?param=50y50'"></div>
+            <div class="r-img"><img :src="playlist.creator.avatarUrl+'?param=100y100'"></div>
             <div class="r-text">{{playlist.creator.nickname}}</div>
           </div>
         </div>
