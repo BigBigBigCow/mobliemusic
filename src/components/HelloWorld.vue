@@ -169,7 +169,7 @@ export default {
         })
       } */
       if (scrollTop + windowHeight === scrollHeight) {
-        console.log('到达底部')
+        // console.log('到达底部')
         if (this.showSonglist) {
           this.searchPage++
           this.search(this.searchName)
@@ -243,7 +243,7 @@ export default {
               continue
             }
             picImg[i].onload = function (e) {
-              console.log('111111111111111', e)
+              // console.log('111111111111111', e)
               e.target.src = e.target.src.split('?')[0] + '?param=500y500'
               e.target.onload = function () {}
             }
@@ -304,10 +304,10 @@ export default {
       // console.log(newVal)
       let wid = document.getElementsByClassName('nevaBar')
       let Client = wid[0].children[newVal - 1].children[0].getBoundingClientRect()
-      console.log(Client)
+      // console.log(Client)
       document.getElementsByClassName('nevaBerBorder')[0].style.width = Client.width + 'px'
       document.getElementsByClassName('nevaBerBorder')[0].style.left = Client.x + 'px'
-      console.log(document.getElementsByClassName('nevaBerBorder')[0])
+      // console.log(document.getElementsByClassName('nevaBerBorder')[0])
       if (newVal === 1 && this.newSongs.length < 1) this.getNewSong() // 获取最新歌曲
       else if (newVal === 2 && this.hotSong.length < 1) this.getHotSong() // 获取最新歌曲
       else if (newVal === 3) {

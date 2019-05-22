@@ -143,7 +143,7 @@ export default {
       that.isPlay = false
     })
     this.audio.addEventListener(`canplay`, function () {
-      console.log('加载完成！！！')
+      // console.log('加载完成！！！')
       if (that.isPlay) {
         that.audio.play()
       }
@@ -174,6 +174,7 @@ export default {
       // let innerHeight = 600
       return {
         'backgroundImage': `url(https://music.163.com/api/img/blur/${str}.jpg?param=${innerHeight}y${innerHeight})`
+        // 'opacity': this.bool ? '1' : '0'
         // 'opacity': this.song[0] ? 0.9 : 1,
         // 'top': this.$parent.isShow ? '' : '100%'
       }
@@ -233,7 +234,7 @@ export default {
       // let du = audio
     },
     play () {
-      console.log('点击')
+      // console.log('点击')
       if (!this.$parent.isShow || !this.bool) {
         // this.$parent.isShow = true
         return
@@ -269,7 +270,7 @@ export default {
         }
         document.title = response.body.songs[0].name + '-' + data.ar[0].name + author
         this.song[0].author = data.ar[0].name + author
-        console.log(this.song[0].author)
+        // console.log(this.song[0].author)
         // console.log(response.body.songs[0].al.picUrl)
         /* this.styleObj = {
           'color': `#ccc`
@@ -351,7 +352,7 @@ export default {
               continue
             }
             picImg[i].onload = function (e) {
-              console.log('111111111111111', e)
+              // console.log('111111111111111', e)
               e.target.src = e.target.src.split('?')[0] + '?param=500y500'
               e.target.onload = function () {}
             }
@@ -379,7 +380,7 @@ export default {
     },
     pTouchStart (e) {
       if (this.$parent.isShow) return
-      console.log('开始触摸', e)
+      // console.log('开始触摸', e)
       this.flags = 1 // 滑动中
       this.default() // 清除默认事件
       let moveDiv = document.getElementsByClassName('play')[0] // 播放页
@@ -398,7 +399,7 @@ export default {
     },
     move (e) {
       if (this.$parent.isShow) return
-      console.log('开始滑动')
+      // console.log('开始滑动')
       let moveDiv = document.getElementsByClassName('play')[0] // 播放页
       if (this.flags) { // 如果正在滑动
         this.flags = 2
@@ -427,7 +428,7 @@ export default {
     },
     end (e) {
       if (this.$parent.isShow) return
-      console.log('触摸结束', e)
+      // console.log('触摸结束', e)
       if (this.flags === 1) {
         this.$parent.isShow = true
       }
@@ -468,11 +469,14 @@ export default {
       this.getLyric()
     },
     '$parent.isShow' (newval) {
-      console.log(newval)
+      // console.log(newval)
       this.isShowPlayAm = newval ? 'hidePlayAnimation' : 'showPlayAnimation'
       if (newval) {
         setTimeout(() => {
           this.bool = true
+          setTimeout(() => {
+            document.getElementById('bg').style.opacity = '1'
+          }, 50)
         }, 250)
         setTimeout(() => {
           document.getElementById('bg').style.zIndex = '-11'
@@ -480,8 +484,8 @@ export default {
         }, 600)
       } else {
         document.getElementById('rotate').style.transform = 'rotateX(180deg)'
-        // document.getElementById('bg').style.transform = 'scale(1.5)'
         document.getElementById('bg').style.zIndex = 'auto'
+        document.getElementById('bg').style.opacity = '0.1'
         this.bool = false
       }
     }
@@ -546,7 +550,8 @@ export default {
   top: 0;
   height: 100%;
   overflow: hidden;
-  transition: all .3s ease-in-out;
+  transition: all .2s;
+  opacity: 0.1;
   /* 解决safari动画过渡不流畅的问题 */
   /*-webkit-transform-style: preserve-3d;*/
   /*z-index: -11;*/

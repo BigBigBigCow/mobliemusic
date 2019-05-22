@@ -1,7 +1,7 @@
 <template>
-    <div style="-webkit-overflow-scrolling: touch;overflow-scrolling: touch;background-color: #f8f8f8;">
+    <div class="playListDl" style="position: fixed;-webkit-overflow-scrolling: touch;overflow-scrolling: touch;background-color: #f8f8f8;">
 <!--      {{id}}-->
-      <div class="playlist-aut" >
+      <div class="playlist-aut" v-show="playlist">
         <div class="playlist_bg" style="background-image: url(//music.163.com/api/img/blur/109951164029082706?param=170y170);"></div>
         <div class="playlist-l">
           <span class="playlist-hd">歌单</span>
@@ -79,9 +79,13 @@ export default {
       this.$get(`${this.domin}/api/playlist/detail?id=${this.id}`, {}).then(response => {
         // console.log(response)
         document.title = response.body.playlist.name
-        console.log(response.body.playlist.description)
-        while (response.body.playlist.description.indexOf('\n') >= 0) {
-          response.body.playlist.description = response.body.playlist.description.replace('\n', '<br/>')
+        // console.log(response.body.playlist.description)
+        if (response.body.playlist.description) {
+          while (response.body.playlist.description.indexOf('\n') >= 0) {
+            response.body.playlist.description = response.body.playlist.description.replace('\n', '<br/>')
+          }
+        } else {
+          response.body.playlist.description = '暂无简介'
         }
         // console.log(response.body.playlist.description.indexOf('\r\n'), response.body.playlist.description.indexOf('\n'), response.body.playlist.description.indexOf('\r'))
         this.playlist = response.body.playlist
@@ -122,6 +126,12 @@ export default {
 </script>
 
 <style scoped>
+.playListDl{
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+  overflow-y: scroll;
+}
 .playlist-aut{
   position: relative;
   padding: 30px 10px 30px 15px;
@@ -192,7 +202,8 @@ export default {
   color: #fefefe;
   height: 44px;
   display: -webkit-box;
-  -webkit-box-pack: center;
+  /*-webkit-box-pack: center;*/
+  text-align: left;
 }
   .r-img{
     display: inline-block;
