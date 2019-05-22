@@ -7,6 +7,14 @@ export default {
   setStorage (name, val) {
     window.localStorage.setItem(name, val)
   },
+  // 获取storage
+  getSessionStorage (name) {
+    return window.sessionStorage.getItem(name) || ''
+  },
+  // 设置storage
+  setSessionStorage (name, val) {
+    window.sessionStorage[name] = val
+  },
   // 毫秒转分钟
   formatSeconds (value) {
     var theTime = parseInt(value)// 秒

@@ -1,5 +1,5 @@
 <template>
-    <div class="play" >
+    <div class="play" @touchstart="pTouchStart" @touchmove="move" @touchend="end">
 <!--      {{id}}-->
       <div class="play_bg" id="bg" :style="bgStyle" v-show="bool"></div>
       <div class="play_content">
@@ -35,7 +35,7 @@
           <div class="ream-ul" v-if="incoludPlayList.length>0">
             <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
               <div>
-                <img :src="item.coverImgUrl+'?param=300y300'" alt="">
+                <img :src="item.coverImgUrl+'?param=30y30'" alt="" class="picImg">
                 <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
               </div>
               <span class="remd_text ellips">{{item.name}}</span>
@@ -89,7 +89,15 @@ export default {
       lyricIndex: 0,
       lyricHeight: 36,
       bool: false,
-      isShowPlayAm: ''
+      isShowPlayAm: '',
+      flags: 0, // 是否在拖动
+      position: { x: 0, y: 0 },
+      nx: '',
+      ny: '',
+      dx: '',
+      dy: '',
+      xPum: '',
+      yPum: ''
     }
   },
   activated () {
@@ -174,7 +182,7 @@ export default {
   methods: {
     isShowPlay () {
       // this.isShowPlayAm = 'hidePlayAnimation'
-      this.$parent.isShow = !this.$parent.isShow
+      this.$parent.isShow = false
       // animation: showPlay 300ms linear alternate forwards ;
     },
     playListDetail (id) {
@@ -225,8 +233,9 @@ export default {
       // let du = audio
     },
     play () {
-      if (!this.$parent.isShow) {
-        this.$parent.isShow = true
+      console.log('点击')
+      if (!this.$parent.isShow || !this.bool) {
+        // this.$parent.isShow = true
         return
       }
       /* console.log(this.audio)
@@ -332,10 +341,111 @@ export default {
         // this.song = response.body.songs
         // console.log(response)
         this.incoludPlayList = response.body.playlists
+        setTimeout(() => {
+          let picImg = document.getElementsByClassName('picImg')
+          // console.log(picImg)
+          for (let i = 0; i < picImg.length; i++) {
+            // console.log(picImg[i].complete)
+            if (picImg[i].complete) {
+              picImg[i].src = picImg[i].src.split('?')[0] + '?param=300y300'
+              continue
+            }
+            picImg[i].onload = function (e) {
+              console.log('111111111111111', e)
+              e.target.src = e.target.src.split('?')[0] + '?param=300y300'
+              e.target.onload = function () {}
+            }
+          }
+        }, 200)
         /* this.styleObj = {
           'color': `#ccc`
         } */
       })
+    },
+    default (e) {
+      // let moveDiv = this.$parent.isShow ? document.getElementsByClassName('play_content')[0] : document.getElementsByClassName('play')[0]
+      let moveDiv = document.getElementsByClassName('play')[0]
+      moveDiv.addEventListener(
+        'touchmove',
+        (e) => {
+          // console.log(e)
+          e.stopPropagation()
+          if (!this.$parent.isShow) {
+            e.preventDefault()
+          }
+        },
+        { passive: false }
+      )
+    },
+    pTouchStart (e) {
+      if (this.$parent.isShow) return
+      console.log('开始触摸', e)
+      this.flags = 1 // 滑动中
+      this.default() // 清除默认事件
+      let moveDiv = document.getElementsByClassName('play')[0] // 播放页
+      moveDiv.style.transition = 'none' // 取消过渡动画
+      let touch
+      if (event.touches) {
+        touch = event.touches[0]
+      } else {
+        touch = event
+      }
+      this.position.x = touch.clientX // 手指触摸x轴位置
+      this.position.y = touch.clientY // 手指触摸y轴位置
+      // console.log(touch.clientX, touch.clientY, moveDiv.offsetLeft, moveDiv.offsetTop)
+      this.dx = moveDiv.offsetLeft // dom距离左侧的距离
+      this.dy = moveDiv.offsetTop // dom距离上侧的距离
+    },
+    move (e) {
+      if (this.$parent.isShow) return
+      console.log('开始滑动')
+      let moveDiv = document.getElementsByClassName('play')[0] // 播放页
+      if (this.flags) { // 如果正在滑动
+        this.flags = 2
+        let touch
+        if (event.touches) {
+          touch = event.touches[0]
+        } else {
+          touch = event
+        }
+        this.nx = touch.clientX - this.position.x // 滑动x轴的总距离
+        this.ny = touch.clientY - this.position.y // 滑动y轴的总距离
+        this.xPum = this.dx + this.nx // 滑动x轴的总距离+dom距离左边的距离 == dom滑动之后x轴的位置
+        this.yPum = this.dy + this.ny // 滑动y轴的总距离+dom距离上边的距离 == dom滑动之后y轴的位置
+        if (this.xPum > 0 && this.xPum < window.innerWidth - 80) {
+          if (!this.$parent.isShow) {
+            moveDiv.style.left = this.xPum + 'px'
+          }
+        }
+        if (this.yPum > 20 && this.yPum < window.innerHeight - 80) {
+          if (!this.$parent.isShow) {
+            moveDiv.style.top = this.yPum + 'px'
+          }
+        }
+        // this.bool = this.yPum <= 200
+      }
+    },
+    end (e) {
+      if (this.$parent.isShow) return
+      console.log('触摸结束', e)
+      if (this.flags === 1) {
+        this.$parent.isShow = true
+      }
+      this.flags = 0 // 滑动结束
+      let moveDiv = document.getElementsByClassName('play')[0]
+      moveDiv.style.transition = 'all .2s' // 过渡效果+
+      // console.log(moveDiv.offsetLeft, window.innerHeight, moveDiv.offsetTop)
+      moveDiv.style.left = window.innerWidth / 2 - 40 > moveDiv.offsetLeft ? '0' : (window.innerWidth - 80) + 'px' // 判断在左还是在右
+      if (moveDiv.offsetTop < 0) {
+        moveDiv.style.top = '0'
+      }
+      if (window.innerHeight - moveDiv.offsetTop < 80) {
+        moveDiv.style.top = (window.innerHeight - 80) + 'px'
+      }
+      this.$parent.top = moveDiv.offsetTop + 'px' // 保存位置
+      this.$parent.left = moveDiv.style.left
+      this.common.setSessionStorage('top', moveDiv.offsetTop + 'px')
+      this.common.setSessionStorage('left', moveDiv.style.left)
     }
   },
   watch: {
@@ -366,14 +476,12 @@ export default {
         }, 250)
         setTimeout(() => {
           document.getElementById('bg').style.zIndex = '-11'
-        }, 500)
-        setTimeout(() => {
           document.getElementById('rotate').style.transform = 'rotateX(0deg)'
-        }, 800)
+        }, 600)
       } else {
         document.getElementById('rotate').style.transform = 'rotateX(180deg)'
         // document.getElementById('bg').style.transform = 'scale(1.5)'
-        document.getElementById('bg').style.zIndex = '-10'
+        document.getElementById('bg').style.zIndex = 'auto'
         this.bool = false
       }
     }

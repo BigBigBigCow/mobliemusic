@@ -388,6 +388,7 @@ export default {
   -webkit-overflow-scrolling: touch;
   overflow-scrolling: touch;
   overflow-y: scroll;
+  /*touch-action: none;*/
 }
 .ream-ul{
   width: 100%;

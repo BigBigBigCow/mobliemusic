@@ -9,7 +9,7 @@
 <!--    <router-view name="play" ></router-view>-->
 <!--      </transition>-->
 <!--    </v-touch>-->
-    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;" :style="styleObj"></play>
+    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;touch-action: none" :style="styleObj"></play>
     <!--<transition name="slide-fade">
     </transition>-->
   </div>
@@ -22,7 +22,9 @@ export default {
   data () {
     return {
       transitionName: 'slideleft',
-      isShow: false
+      isShow: false,
+      top: this.common.getSessionStorage('top') || '200px',
+      left: this.common.getSessionStorage('left') || '0'
     }
   },
   computed: {
@@ -30,7 +32,8 @@ export default {
       return {
         'height': this.isShow ? '100%' : '80px',
         'width': this.isShow ? '100%' : '80px',
-        'top': !this.isShow ? '200px' : '0'
+        'top': !this.isShow ? this.top : '0',
+        'left': !this.isShow ? this.left : '0'
       }
     }
   },

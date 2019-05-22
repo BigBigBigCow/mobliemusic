@@ -5,7 +5,7 @@
         <div class="playlist_bg" style="background-image: url(//music.163.com/api/img/blur/109951164029082706?param=170y170);"></div>
         <div class="playlist-l">
           <span class="playlist-hd">歌单</span>
-          <img :src="playlist.coverImgUrl">
+          <img :src="playlist.coverImgUrl + '?param=30y30'" class="picImg">
           <span class="playlist-icon" v-if="playlist.playCount"><i class="iconfont big-icon-test15"></i>{{(playlist.playCount/10000)>10000?(playlist.playCount/100000000).toFixed(1)+'亿':(playlist.playCount/10000).toFixed(1)+'万'}}</span>
         </div>
         <div class="playlist-r">
@@ -86,6 +86,22 @@ export default {
         // console.log(response.body.playlist.description.indexOf('\r\n'), response.body.playlist.description.indexOf('\n'), response.body.playlist.description.indexOf('\r'))
         this.playlist = response.body.playlist
         this.privileges = response.body.privileges
+        setTimeout(() => {
+          let picImg = document.getElementsByClassName('picImg')
+          // console.log(picImg)
+          for (let i = 0; i < picImg.length; i++) {
+            // console.log(picImg[i].complete)
+            if (picImg[i].complete) {
+              picImg[i].src = picImg[i].src.split('?')[0] + '?param=300y300'
+              continue
+            }
+            picImg[i].onload = function (e) {
+              console.log('111111111111111', e)
+              e.target.src = e.target.src.split('?')[0] + '?param=300y300'
+              e.target.onload = function () {}
+            }
+          }
+        }, 200)
         // this.songComment = response.body.hotComments
       })
     },
