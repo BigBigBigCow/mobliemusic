@@ -9,7 +9,7 @@
 <!--    <router-view name="play" ></router-view>-->
 <!--      </transition>-->
 <!--    </v-touch>-->
-    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;touch-action: none" :style="styleObj"></play>
+    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;touch-action: none;position: fixed;" :style="styleObj"></play>
     <!--<transition name="slide-fade">
     </transition>-->
   </div>
@@ -33,8 +33,7 @@ export default {
         'height': this.isShow ? '100%' : '80px',
         'width': this.isShow ? '100%' : '80px',
         'top': !this.isShow ? this.top : '0',
-        'left': !this.isShow ? this.left : '0',
-        'position': this.isShow ? 'absolute' : 'fixed'
+        'left': !this.isShow ? this.left : '0'
       }
     }
   },

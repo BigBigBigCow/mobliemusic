@@ -347,16 +347,16 @@ export default {
           for (let i = 0; i < picImg.length; i++) {
             // console.log(picImg[i].complete)
             if (picImg[i].complete) {
-              picImg[i].src = picImg[i].src.split('?')[0] + '?param=300y300'
+              picImg[i].src = picImg[i].src.split('?')[0] + '?param=500y500'
               continue
             }
             picImg[i].onload = function (e) {
               console.log('111111111111111', e)
-              e.target.src = e.target.src.split('?')[0] + '?param=300y300'
+              e.target.src = e.target.src.split('?')[0] + '?param=500y500'
               e.target.onload = function () {}
             }
           }
-        }, 200)
+        }, 500)
         /* this.styleObj = {
           'color': `#ccc`
         } */

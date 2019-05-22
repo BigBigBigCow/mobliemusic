@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <div class="playlist-intro">
+      <div class="playlist-intro" style="background-color: #f8f8f8;">
         <div class="intro-tag" v-if="playlist.tags">
           标签：
           <span v-for="(item, index) in playlist.tags" :key="index">{{item}}</span>
@@ -26,8 +26,8 @@
           <span v-html="playlist.description"></span>
         </div>
       </div>
-      <div style="text-align: right;padding: 0 10px;" @click="showDescription()"><i class="iconfont big-xia1" style="display: inline-block;" :class="isShowDescription ? 'rotate180' : ''"></i></div>
-      <div style="height: 20px;line-height: 20px;padding: 0 0 20px 0;">
+      <div style="text-align: right;padding: 0 10px;background-color: #f8f8f8;" @click="showDescription()"><i class="iconfont big-xia1" style="display: inline-block;" :class="isShowDescription ? 'rotate180' : ''"></i></div>
+      <div style="height: 20px;line-height: 20px;padding: 0 0 20px 0;background-color: #f8f8f8;">
         <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;">歌曲列表
           <i style="font-size: 15px;color: #ccc" v-if="playlist.tracks">({{playlist.tracks.length || ''}})</i>
         </span>
@@ -92,16 +92,16 @@ export default {
           for (let i = 0; i < picImg.length; i++) {
             // console.log(picImg[i].complete)
             if (picImg[i].complete) {
-              picImg[i].src = picImg[i].src.split('?')[0] + '?param=300y300'
+              picImg[i].src = picImg[i].src.split('?')[0] + '?param=500y500'
               continue
             }
             picImg[i].onload = function (e) {
               console.log('111111111111111', e)
-              e.target.src = e.target.src.split('?')[0] + '?param=300y300'
+              e.target.src = e.target.src.split('?')[0] + '?param=500y500'
               e.target.onload = function () {}
             }
           }
-        }, 200)
+        }, 500)
         // this.songComment = response.body.hotComments
       })
     },
