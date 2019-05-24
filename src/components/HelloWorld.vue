@@ -3,12 +3,14 @@
     <div class="hello_title" style="background-image: url(http://p3.music.126.net/ma8NC_MpYqC-dK_L81FWXQ==/109951163250233892.jpg)">
 <!--      http://p3.music.126.net/ma8NC_MpYqC-dK_L81FWXQ==/109951163250233892.jpg <img src="../../static/img/format.png" class="autImg" style="cursor: pointer;">-->
       <span class="text" style="color: #d43c33;" @click="$router.push(`/login`)" v-if="!$parent.profile.userId">Cloudmusic</span>
-      <div class="hello_info" v-else>
+      <div class="hello_info" v-else @click="showloginOut()">
         <div class="hello_avatar">
           <img :src="$parent.profile.avatarUrl" width="100%" height="100%">
         </div>
         <div style="height: 100%;line-height: 60px;padding: 0 10px;font-size: 16px;color: #000;">{{$parent.profile.nickname}}</div>
       </div>
+      <div class="hello_info login_out" @click="loginOut()">退出登录</div>
+<!--       v-show="$parent.profile.userId"-->
     </div>
     <div class="nevaBar">
       <div @click="nevaBarFun(1)"><span :class="nevaBarId === 1?'action':''">推荐歌单</span></div>
@@ -134,6 +136,7 @@ export default {
   activated () {
     // console.log('1234')
     // this.getLoginStatus() // 获得登录状态
+    this.$parent.getLoginStatus()
   },
   mounted () {
     this.nevaBarId = 1
@@ -202,6 +205,23 @@ export default {
       setTimeout(function () {
         document.getElementById('input').focus()
       }, 400)
+    },
+    showloginOut () {
+      console.log(document.querySelector('.login_out').offsetLeft, document.querySelector('.login_out').offsetLeft < window.innerWidth)
+      if (document.querySelector('.login_out').offsetLeft < window.innerWidth) {
+        return
+      }
+      document.querySelector('.login_out').style.right = '0'
+      setTimeout(function () {
+        document.querySelector('.login_out').style.right = '-80px'
+      }, 3000)
+    },
+    loginOut () {
+      this.$get(`${this.domin}/api/loginOut`, {}, false).then(response => {
+        // window.location.reload()
+        this.$parent.profile = {}
+        document.querySelector('.login_out').style.right = '-80px'
+      })
     },
     // 去歌曲播放页
     goPlayInfo (id) {
@@ -372,6 +392,19 @@ export default {
 }
 .hello_info>div{
   float: left;
+}
+.login_out{
+  background-color: #b32424;
+  color: #fff;
+  border-radius: 4px;
+  width: 80px;
+  height: 60px;
+  display: inline-block;
+  float: right;
+  position: fixed;
+  right: -80px;
+  top: 0;
+  transition: all .2s;
 }
 .action{
   color:#C20C0C;

@@ -67,7 +67,7 @@ export default {
       this.hasPsw = 'has-success'
       this.errMsg = ''
     }
-    if (this.$parent.profile) {
+    if (this.$parent.profile.userId) {
       this.$router.replace('/')
     }
   },
@@ -90,6 +90,7 @@ export default {
             } else if (response.body.profile) {
               console.log(response.body.profile)
               this.$parent.profile = response.body.profile
+              // this.$parent.getLoginStatus()
               this.$router.replace('/')
             }
           }).catch(() => {

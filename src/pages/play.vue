@@ -192,7 +192,8 @@ export default {
       }, 500)
     },
     likeSong () {
-      if (this.$parent.profile) {
+      console.log(this.$parent.profile.userId)
+      if (this.$parent.profile.userId) {
         this.$get(`${this.domin}/api/song/like?id=${this.id}&like=${!this.isLike}`, {}).then(response => {
           this.isLike = !this.isLike
           if (this.isLike) {
@@ -214,23 +215,39 @@ export default {
           showCancelButton: true,
           confirmButtonText: '立即登录',
           cancelButtonText: '稍后再说'
-        }).then(() => {
-          this.$router.push(`/login`)
-        }).catch(() => {
+        }).then((e) => {
+          if (e === 'confirm') {
+            this.$parent.isShow = false
+            this.$router.push(`/login`)
+          }
         })
       }
     },
     likeComment (index) {
-      // liked
-      this.$get(`${this.domin}/api/comment/like?type=0&id=${this.id}&cid=${this.songComment[index].commentId}&t=${this.songComment[index].liked ? 0 : 1}`, {}).then(response => {
-        // this.isLike = !this.isLike
-        this.songComment[index].liked = !this.songComment[index].liked
-        if (this.songComment[index].liked) {
-          this.songComment[index].likedCount++
-        } else {
-          this.songComment[index].likedCount--
-        }
-      })
+      if (this.$parent.profile.userId) {
+        this.$get(`${this.domin}/api/comment/like?type=0&id=${this.id}&cid=${this.songComment[index].commentId}&t=${this.songComment[index].liked ? 0 : 1}`, {}).then(response => {
+          // this.isLike = !this.isLike
+          this.songComment[index].liked = !this.songComment[index].liked
+          if (this.songComment[index].liked) {
+            this.songComment[index].likedCount++
+          } else {
+            this.songComment[index].likedCount--
+          }
+        })
+      } else {
+        this.mint.MessageBox({
+          title: '温馨提示',
+          message: '需要登录！！！！',
+          showCancelButton: true,
+          confirmButtonText: '立即登录',
+          cancelButtonText: '稍后再说'
+        }).then((e) => {
+          if (e === 'confirm') {
+            this.$parent.isShow = false
+            this.$router.push(`/login`)
+          }
+        })
+      }
     },
     getLyricText () {
       let ct = this.audio.currentTime
@@ -397,6 +414,7 @@ export default {
       })
     },
     default (e) {
+      if (this.$parent.isShow) return
       // let moveDiv = this.$parent.isShow ? document.getElementsByClassName('play_content')[0] : document.getElementsByClassName('play')[0]
       let moveDiv = document.getElementsByClassName('play')[0]
       moveDiv.addEventListener(

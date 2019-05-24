@@ -63,7 +63,7 @@ export default {
             this.profile = response.body.profile
             this.getLikeSongList()
           } else {
-            this.mint.Toast('需要登录！！！')
+            // this.mint.Toast('需要登录！！！')
           }
         })
     },
