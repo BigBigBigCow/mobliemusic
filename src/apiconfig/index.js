@@ -34,6 +34,7 @@ export function tryHideFullScreenLoading () {
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
+    // const token = this.getCookie('session') // 获取Cookie
     config.data = JSON.stringify(config.data)
     config.headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -41,6 +42,9 @@ axios.interceptors.request.use(
     if (config.showLoading) {
       showFullScreenLoading()
     }
+    // if (token) {
+    //   config.params = {'cookie': token}
+    // }
     return config
   },
   error => {
@@ -53,10 +57,18 @@ axios.interceptors.response.use(
     if (response.config.showLoading) {
       tryHideFullScreenLoading()
     }
-    // console.log(response)
-    if (response.data.status !== 200) {
-      if (response.config.showLoading) Toast('请求错误！')
+    // console.log(response.data)
+    if (response.data.status !== 200 && response.data.status !== 301) {
+      if (response.config.showLoading) Toast(response.data.body.msg || '请求错误！')
       // response.request.onerror()
+    }
+    // for (let i = 0; i < response.cookie; i++) {
+    //   console.log(response.cookie[i])
+    // }
+    if (response.data.cookie.length > 0) {
+      console.log(response.data.cookie)
+      // response.headers['set-cookie'] = response.data.cookie[0]
+      document.cookie = response.data.cookie[0]
     }
     return response
   },
@@ -78,9 +90,11 @@ export function fetch (url, params = {}, showLoading = true) {
   return new Promise((resolve, reject) => {
     axios.get(url, {
       params: params,
-      showLoading: showLoading
+      showLoading: showLoading,
+      withCredentials: true
     })
       .then(response => {
+        // console.log(response.data)
         resolve(response.data)
       })
       .catch(err => {

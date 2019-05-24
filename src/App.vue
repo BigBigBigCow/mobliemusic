@@ -24,7 +24,9 @@ export default {
       transitionName: 'slideleft',
       isShow: false,
       top: this.common.getSessionStorage('top') || '200px',
-      left: this.common.getSessionStorage('left') || '0'
+      left: this.common.getSessionStorage('left') || '0',
+      profile: {}, // 登录信息
+      likeSongIds: [] // 喜欢的歌曲列表
     }
   },
   computed: {
@@ -38,21 +40,7 @@ export default {
     }
   },
   mounted () {
-    /* let app = document.getElementById('play')
-    let first = app.getBoundingClientRect()
-    app.classList.add('app-to-end')
-    let last = app.getBoundingClientRect()
-    let invert = first.top - last.top
-    // 使元素看起来好像在起始点
-    app.style.transform = `translateY(${invert}px)`
-    requestAnimationFrame(function () {
-      // 启用tansition，并移除翻转的改变
-      app.classList.add('animate-on-transforms')
-      app.style.transform = ''
-    })
-    app.addEventListener('transitionend', () => {
-      app.classList.remove('animate-on-transforms')
-    }) */
+    this.getLoginStatus()
   },
   methods: {
     onSwipeLeft () {
@@ -64,6 +52,34 @@ export default {
     },
     changePlayId (id) {
       this.$refs.play.id = id
+      // this.$refs.play.isLike = false
+      // this.$refs.play.isLike = this.likeSongIds.includes(id)
+    },
+    // 获得登录状态
+    getLoginStatus () {
+      this.$get(`${this.domin}/api/login/status`, {}, false)
+        .then(response => {
+          if (response.status === 200) {
+            this.profile = response.body.profile
+            this.getLikeSongList()
+          } else {
+            this.mint.Toast('需要登录！！！')
+          }
+        })
+    },
+    getLikeSongList () {
+      this.$get(`${this.domin}/api/LikeList?uid=${this.profile.userId}`, {}, false)
+        .then(response => {
+          if (response.status === 200) {
+            this.likeSongIds = response.body.ids
+            console.log(this.$refs.play.id, response.body.ids, response.body.ids.join(',').indexOf(this.$refs.play.id))
+            if (response.body.ids.join(',').indexOf(this.$refs.play.id) > -1) {
+              this.$refs.play.isLike = true
+            }
+          } else {
+            this.mint.Toast(response.body.msg)
+          }
+        })
     }
   },
   watch: {

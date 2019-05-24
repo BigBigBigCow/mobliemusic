@@ -70,6 +70,7 @@ export default {
       let id = this.playlist.trackIds[index].id
       // this.$router.push(`/play?id=${id}`)
       this.$parent.isShow = true
+      this.$parent.$refs.play.isLike = this.$parent.likeSongIds.includes(id)
       setTimeout(() => {
         this.$parent.changePlayId(id)
       }, 800)

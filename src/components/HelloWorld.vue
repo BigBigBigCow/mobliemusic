@@ -1,8 +1,14 @@
 <template>
   <div class="hello">
-    <div style="height: 40px;width: 100%;background-color:#d43c33;text-align: center;position: fixed;z-index: 9;" @click="$parent.isShow = true">
-<!--      <img src="../../static/img/format.png" class="autImg" style="cursor: pointer;">-->
-      <span class="text">Cloudmusic</span>
+    <div class="hello_title" style="background-image: url(http://p3.music.126.net/ma8NC_MpYqC-dK_L81FWXQ==/109951163250233892.jpg)">
+<!--      http://p3.music.126.net/ma8NC_MpYqC-dK_L81FWXQ==/109951163250233892.jpg <img src="../../static/img/format.png" class="autImg" style="cursor: pointer;">-->
+      <span class="text" style="color: #d43c33;" @click="$router.push(`/login`)" v-if="!$parent.profile.userId">Cloudmusic</span>
+      <div class="hello_info" v-else>
+        <div class="hello_avatar">
+          <img :src="$parent.profile.avatarUrl" width="100%" height="100%">
+        </div>
+        <div style="height: 100%;line-height: 60px;padding: 0 10px;font-size: 16px;color: #000;">{{$parent.profile.nickname}}</div>
+      </div>
     </div>
     <div class="nevaBar">
       <div @click="nevaBarFun(1)"><span :class="nevaBarId === 1?'action':''">推荐歌单</span></div>
@@ -39,12 +45,15 @@
         <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;">最新音乐</span>
       </div>
       <!--         歌曲显示固定格式-->
-      <div class="newSong">
+      <div class="newSong" v-if="newSongs.length > 0">
         <div class="newSong_li" v-for="(item, index) in newSongs" :key="index" @click="goPlayInfo(item.songId)">
           <div class="newSong_li_title ellips" v-html="item.title"></div>
           <div class="newSong_li_author"><i class="big-big-icon-test2 iconfont" style="font-size: 27px;"></i></div>
           <div class="newSong_li_icon ellips"><i class="iconfont big-sq1" style="margin-right: 4px;color: #eea375;"></i>{{item.author}}-{{item.special}}</div>
         </div>
+      </div>
+      <div style="text-align: center;" v-else>
+        <mt-spinner type="triple-bounce" color="#d43c33" :size="60"></mt-spinner>
       </div>
     </div>
     <div class="nevaBarPage" v-show="nevaBarId === 2">
@@ -57,13 +66,16 @@
           <div class="hottime">更新日期：{{update}}</div>
         </div>
       </div>
-      <div class="newSong">
+      <div class="newSong" v-if="hotSong.length > 0">
         <div class="newSong_li" v-for="(item, index) in hotSong" :key="index" @click="goPlayInfo(item.songId)">
           <div class="newSong_li_img newSong_li_hot" :style="index<3?'color: #df3436;':''">{{index &lt; 9 ? '0' + (index + 1) : index + 1}}</div>
           <div class="newSong_li_title ellips" style="padding-left: 46px;" v-html="item.title"></div>
           <div class="newSong_li_author"><i class="big-big-icon-test2 iconfont" style="font-size: 27px;"></i></div>
           <div class="newSong_li_icon ellips" style="padding-left: 46px;"><i class="iconfont big-sq1" style="margin-right: 4px;color: #eea375;"></i>{{item.author}}-{{item.special}}</div>
         </div>
+      </div>
+      <div style="text-align: center;margin-top: 20px;" v-else>
+        <mt-spinner type="triple-bounce" color="#d43c33" :size="60"></mt-spinner>
       </div>
     </div>
     <div class="nevaBarPage" v-show="nevaBarId === 3" @scroll="scrollToEnd">
@@ -119,11 +131,16 @@ export default {
       update: '04月25日'
     }
   },
+  activated () {
+    // console.log('1234')
+    // this.getLoginStatus() // 获得登录状态
+  },
   mounted () {
     this.nevaBarId = 1
     this.getPersonalized() // 获取推荐歌单
     // this.getNewSong() // 获取最新歌曲
     this.getHotSearch() // 获得热搜关键词
+    // this.getLoginStatus() // 获得登录状态
     this.searchLog = this.common.getStorage('searchLog') || []
     if (this.searchLog.length > 0) this.searchLog = this.searchLog.split(',')
     let date = new Date()
@@ -190,13 +207,14 @@ export default {
     goPlayInfo (id) {
       // this.$router.push(`/play?id=${id}`)
       this.$parent.isShow = true
+      this.$parent.$refs.play.isLike = this.$parent.likeSongIds.includes(id)
       setTimeout(() => {
         this.$parent.changePlayId(id)
       }, 800)
     },
     // 获得热门歌曲
     getHotSong () {
-      this.$get(`${this.domin}/api/top/list?idx=1`, {}).then(response => {
+      this.$get(`${this.domin}/api/top/list?idx=1`, {}, false).then(response => {
         // alert('成功！')
         // console.log(response)
         let data = response.body.result
@@ -220,7 +238,7 @@ export default {
     },
     // 获得最新音乐
     getNewSong () {
-      this.$get(`${this.domin}/api/personalized/newsong`, {}).then(response => {
+      this.$get(`${this.domin}/api/personalized/newsong`, {}, false).then(response => {
         // alert('成功！')
         // console.log(response.body.result)
         this.newSongs = response.body.result
@@ -308,8 +326,11 @@ export default {
       document.getElementsByClassName('nevaBerBorder')[0].style.width = Client.width + 'px'
       document.getElementsByClassName('nevaBerBorder')[0].style.left = Client.x + 'px'
       // console.log(document.getElementsByClassName('nevaBerBorder')[0])
-      if (newVal === 1 && this.newSongs.length < 1) this.getNewSong() // 获取最新歌曲
-      else if (newVal === 2 && this.hotSong.length < 1) this.getHotSong() // 获取最新歌曲
+      if (newVal === 1 && this.newSongs.length < 1) {
+        setTimeout(() => {
+          this.getNewSong() // 获取最新歌曲
+        }, 1000)
+      } else if (newVal === 2 && this.hotSong.length < 1) this.getHotSong() // 获取热歌榜
       else if (newVal === 3) {
         this.getHotSearch() // 获得热搜关键词
         // this.$refs.input.getFocus()
@@ -340,6 +361,18 @@ export default {
 .hello{
   font-size: 12px;
 }
+.hello .hello_title{
+  height: 60px;line-height:60px;width: 100%;background-color:#d43c33;text-align: center;position: fixed;z-index: 9;
+}
+.hello_info{
+  height: 100%;
+}
+.hello_info .hello_avatar{
+  width: 40px;height: 40px;border-radius: 50%;overflow: hidden;margin-top: 10px;margin-left: 10px;
+}
+.hello_info>div{
+  float: left;
+}
 .action{
   color:#C20C0C;
 }
@@ -352,14 +385,14 @@ export default {
   font-size: 14px;
   border-bottom: 1px solid #ccc;
   position: fixed;
-  top: 40px;
+  top: 60px;
 }
 .nevaBerBorder{
   background-color: #C20C0C;
-  width: 100px;
+  width: 0;
   height: 2px;
   position: fixed;
-  top: 78px;
+  top: 98px;
   z-index: 9;
   transition: all .3s;
 }
@@ -380,7 +413,7 @@ export default {
 }
 .nevaBarPage{
   position: absolute;
-  top: 80px;
+  top: 100px;
   width: 100%;
   height: calc(100% - 81px);
   background-color: #fbfcfd;
@@ -394,6 +427,7 @@ export default {
   width: 100%;
   display: flex;
   justify-content: space-around;
+  min-height: 160px;
 }
 .ream-ul .ream-li{
   display: inline-block;

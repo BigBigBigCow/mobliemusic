@@ -7,6 +7,9 @@
         <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="isShowPlay()" v-show="bool">
           <i class="iconfont big-xia1" id="rotate" style="transform: rotateX(180deg);font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
         </div>
+        <div style="position: absolute;left: 0;padding: 20px;z-index: 14;" @click="likeSong()" v-show="bool">
+          <i class="iconfont" :class="isLike ? 'big-xihuan1' : 'big-xihuan'" id="" style="font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
+        </div>
         <div class="play_body" :class="isShowPlayAm">
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
@@ -33,7 +36,7 @@
             <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
           </div>
           <div class="ream-ul" v-if="incoludPlayList.length>0">
-            <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
+            <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click.prevent="playListDetail(item.id)">
               <div>
                 <img :src="item.coverImgUrl+'?param=30y30'" alt="" class="picImg">
                 <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
@@ -55,7 +58,7 @@
               <div class="cmt_wrap">
                 <div class="cmt_wrap_head">
                   <div style="color: hsla(0,0%,100%,.7);font-size: 14px;">{{item.user.nickname}}<i class="icon-vip" v-if="item.user.vipType !== 0"></i>
-                    <span style="float: right;padding-right: 10px;" @click="item.liked?'':item.likedCount++;item.liked=true;">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
+                    <span style="float: right;padding-right: 10px;" @click="likeComment(index)">{{item.likedCount > 100000 ? (item.likedCount/10000).toFixed(1)+'万' : item.likedCount}}<i style="margin-left: 4px;transition:color 100ms linear;" class="iconfont big-zan" :style="item.liked?'color:red;':''" ></i></span></div>
                   <div style="color:hsla(0,0%,100%,.3);font-size: 12px;">{{common.format(item.time)}}</div>
                 </div>
                 <div class="cmt_wrap_bd">
@@ -91,6 +94,7 @@ export default {
       bool: false,
       isShowPlayAm: '',
       flags: 0, // 是否在拖动
+      isLike: false, // 是否喜欢
       position: { x: 0, y: 0 },
       nx: '',
       ny: '',
@@ -99,22 +103,6 @@ export default {
       xPum: '',
       yPum: ''
     }
-  },
-  activated () {
-    // console.log(this.$route.query.id === this.id)
-    this.isPlay = false
-    this.lyricIndex = 0
-    if (this.$route.query.id === this.id) {
-      document.title = this.song[0].name + '-' + this.song[0].author
-      return
-    }
-    this.id = this.$route.query.id || 2526628
-    this.incoludPlayList = []
-    this.songComment = []
-    this.getSongDetails()
-    this.getSongComments()
-    this.getSimiPlaylist()
-    this.getLyric()
   },
   mounted () {
     // console.log(this.$parent.transitionName)
@@ -157,6 +145,7 @@ export default {
       })
     })
     this.isShowPlayAm = this.$parent.isShow ? 'hidePlayAnimation' : 'showPlayAnimation'
+    // this.$get(`${this.domin}/api/login?phone=18569499136&password=javagcs1`, {}).then(response => {}).catch()
   },
   computed: {
     styleObj: function () {
@@ -200,7 +189,48 @@ export default {
           this.$router.replace(`/playList?id=${id}`)
         }
         // console.log(this.$route.name)
-      }, 800)
+      }, 500)
+    },
+    likeSong () {
+      if (this.$parent.profile) {
+        this.$get(`${this.domin}/api/song/like?id=${this.id}&like=${!this.isLike}`, {}).then(response => {
+          this.isLike = !this.isLike
+          if (this.isLike) {
+            this.$parent.likeSongIds.push(this.id)
+          } else {
+            for (let i in this.$parent.likeSongIds) {
+              console.log(i)
+              if (this.$parent.likeSongIds[i] === this.id) {
+                this.$parent.likeSongIds.splice(i, 1)
+                break
+              }
+            }
+          }
+        })
+      } else {
+        this.mint.MessageBox({
+          title: '温馨提示',
+          message: '需要登录！！！！',
+          showCancelButton: true,
+          confirmButtonText: '立即登录',
+          cancelButtonText: '稍后再说'
+        }).then(() => {
+          this.$router.push(`/login`)
+        }).catch(() => {
+        })
+      }
+    },
+    likeComment (index) {
+      // liked
+      this.$get(`${this.domin}/api/comment/like?type=0&id=${this.id}&cid=${this.songComment[index].commentId}&t=${this.songComment[index].liked ? 0 : 1}`, {}).then(response => {
+        // this.isLike = !this.isLike
+        this.songComment[index].liked = !this.songComment[index].liked
+        if (this.songComment[index].liked) {
+          this.songComment[index].likedCount++
+        } else {
+          this.songComment[index].likedCount--
+        }
+      })
     },
     getLyricText () {
       let ct = this.audio.currentTime
@@ -270,6 +300,9 @@ export default {
         }
         document.title = response.body.songs[0].name + '-' + data.ar[0].name + author
         this.song[0].author = data.ar[0].name + author
+        // if (this.$parent.likeSongIds.includes(this.id)) {
+        //   this.isLike = true
+        // }
         // console.log(this.song[0].author)
         // console.log(response.body.songs[0].al.picUrl)
         /* this.styleObj = {
@@ -729,5 +762,8 @@ export default {
   height: 60px;
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAACoCAMAAABDlVWGAAABJlBMVEUAAAAAAAD////l5eX///9iYmKDg4Pn5+f///9YWFj////09PT////4+Pjt7e3///////9oaGhBQUH////////////////CwsIaGhr///8xMTEkJCT////7+/vp6en///////////////+srKyoqKienp58fHz////y8vKTk5P///8EBAT////////////////V1dW3t7f////////////////////v7++jo6N9fX3///////+UlJT////s7Oz////Nzc3///////+RkZGPj495eXkTExP////////29vb////k5OTPz882Njb////////////c3Nz///////9ycnJsbGz///9dXV3////////Q0ND///9QUFD///////////////////9FeiN6AAAAYXRSTlNmAP3c+oWT3ueB9vA19ealRId5EQbuurpu83RxD/nh05dfAquooo+M7JtzaSolE+vMspJ3Wj7w6KSQj6ucKeXNxLWnmpmObVYd8t3axXZRSt7TvbKLideCeSzHnn4V3Nh6YarbPAAABlRJREFUeNrU14lWEmEYh/GXcdj3HQTZRCkS913UNE2zbLd9Oc/930Q2LmVpwPAC03MD/M5835n/IC6dkqHnzcVoZvdkLp2HfHruZDcTXWw+DyVdOilAt6uNjI8782Ua1W2XjTShtdDSmzRdlH6zFKq5bKQBTS5H57gqXJrP1tsb7kShkBPJFQoJ90a7np0vhblqLrrc8R7oQ4vVPZOLIp8mp8flzsanJ59FuMjcqxZdHVKFxvYDWK1lPQXpooInu4ZVYD/m6pAWNLn0DSvvekJ6KLHuxerb0qyrQwrQViV/oZzKSc/lpi6sgUrLdSN16MyWARBcOBWbnS4EAYytj67r1KGtqMUseaSvPCWLGr14u+pDZysmwFhc+i4+BmBWZgcATTXTFvO9qOS3qOlmShu68g7A6xa13F6A7yuq0ORnA9jZENU2dgDjc1IPGvMB4QNR7+AJ4IspQVObBjDmF+Wur6qxmdKAbpeBoEcGlCcIlLf7hx7lOzxOlYeaP+oTmmoYQFsGWhswGql+oMUMEInLgItHgEzRPvS43OHYVY+/fGwXGvIBkzKU6oAvZA8aywOPZEg9AvIxO9AXAZg4lKF1OAGBF71DX5jw5EyG2NkTMJ/3Co2ZcM8tQ819D8xYb9CVgA2nijSw0gs0tArBzk59aRBWQ91Dj30QjssIiofBd9wttFiGiTMZSWcTUC52B629Bg5lRB0Cr2tdQRvAfRlZ94FGN9AjA+oywupgHHWGzuRhTEbaGORnOkFTZYj4ZaT5I1BOdYBuAnEZcXFg89/QmAFtGXltMGL/ghZ9I7+g19fUV/wHtAJBvzggfxAqd0NXDPCII/KAsXIXNPXOIQd/efjvUndAmxB2xMH/zB+G5u3Qr2k4EMd0AOmvt0IrsCMOagcqt0FbJkyLg5oGs3ULNApecVReiP4NnTHALY7KDcbHv6BbDno1XTUGW39CWwa8F4flB6P1B3TRgQ/UeqSLN6GzAQd83f1dHAKzN6AfoCQOrARLN6Andr9GpiITT9/KwPLAye/QGATFTusAxsOCDKogxH6D7sOC2GkNq+B9GVALsP8LWgzAqdjJ4LJXCRlIpxAoXkOrtteT6yYmH8gg8kL1GroHU/1CoTSQBZ6CvSto0oRc/1DM7GNRLwdm8hK6DF5RgMI9j6jnheVLaBTWdaAwPy7KrUP0Alqbg4QWlPCU6JaAuZoFDcGaqEHh6RdRLQIhC/oBsppQzAXVN1UWlixoBjyqUIhozr8H3vyE1lYhpwnVnv8CpH9CZyAi2lAIPtK8pDPn0Cp8UoWqz/8zqJ5DGzCpCdWf/0lonEMzMK0J1Z//acicQ30wrgnVn/9x8LkkCWFRherPfxiSEgKvLlR//r0QkmWY14Xqz/88LEsTsqpQ/fm3RlQWoa4L1Z//OixKFNq6UP35vw9RycDGMKAYD3P9vEhlF9y6UP35d8OuvISELlR//hPwUqxh0oTqz781TbIKueFB4em4rb/Mq5IfMpRn0nOPIS+ADBUatvcz/w/0B/X2VgMACMNQ9AMnWOADKwT/QuahyZYcDcte7e146X9W+vFmWmEzOeOJGfjMCmWOEubMYw7no7wizHPHvMuMAMFIOo5IxsiOjJDLSOOM2cDYN44hxliMjGnL2OAOWMCgGgz84uBEDKDFIG8ORLhzLPO2Y5kK6PpMdJiBsR28nQkMOBEMJtTixISY4JUTZWPCgVXevesgCINhGG7dZPLEIg7GRRsMTsaoMTEOnmLUuBgn+e//JuTHGt0aKT3y3QIFpj6vO9ctnbnAmr9PIysefn0E0PfhkjW92HFtnQHULn5AAG9aISZGF3NaQYxVrInRrcVYBW4H5vkPEPIfuIV5UGXhClHT8Qv9oXQ/MckoTfb+wVTGqK8ZUl9+4mmUnpGj03pOmzlH5y/w5w6ZiAil+G9qA0KpkfWMTxKsJ6530wel3try9CwjSscg27BTDcw321gHjzyuEjj9IbwP1hPeDqHo2abP0pn5XMR/NhTB/fyo2gv3q0gh1JSkEHCrUuMSG1VxCdxDOtfR1ZDr4AGUwIUACi5JJZMyx1RHUgY3kIn0LBuFQk2EFlv7J3t0+id7JPi86wlJsfm9FUVbQrZR1LrPmQ0hKZfSXC7Fzr5LeD7uGoYBQBCGV56PS2g5ewGy+NkUNbjr9gAAAABJRU5ErkJggg==) 0 0 no-repeat;
   background-size: contain;
+}
+.big-xihuan1{
+  color: red !important;
 }
 </style>

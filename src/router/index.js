@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
-// 需要左方向动画的路由用this.$router.to('****')
+/* // 需要左方向动画的路由用this.$router.to('****')
 Router.prototype.togo = function (path) {
   this.isleft = true
   this.isright = false
@@ -24,7 +24,7 @@ Router.prototype.goBack = function () {
 Router.prototype.togoback = function () {
   this.isright = true
   this.isleft = false
-}
+} */
 export default new Router({
   // mode: 'history',
   routes: [
@@ -48,6 +48,10 @@ export default new Router({
       path: '/playList',
       name: 'playList',
       component: (resolve) => require(['@/pages/playListDetail'], resolve)
+    }, {
+      path: '/login',
+      name: 'Login',
+      component: (resolve) => require(['@/pages/login'], resolve)
     }
   ]
 })
