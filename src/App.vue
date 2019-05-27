@@ -9,7 +9,7 @@
 <!--    <router-view name="play" ></router-view>-->
 <!--      </transition>-->
 <!--    </v-touch>-->
-    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;touch-action: none;position: fixed;" :style="styleObj"></play>
+    <play ref="play" id="play" class="Router" style="z-index:20;transition: all .2s;position: fixed;" :style="styleObj"></play>
     <!--<transition name="slide-fade">
     </transition>-->
   </div>

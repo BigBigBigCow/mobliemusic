@@ -213,7 +213,7 @@ export default {
       }
       document.querySelector('.login_out').style.right = '0'
       setTimeout(function () {
-        document.querySelector('.login_out').style.right = '-80px'
+        if (document.querySelector('.login_out')) document.querySelector('.login_out').style.right = '-80px'
       }, 3000)
     },
     loginOut () {

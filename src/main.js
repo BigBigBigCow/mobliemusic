@@ -16,8 +16,8 @@ import Main from '../static/js/common'
 Vue.config.productionTip = false
 Vue.prototype.domin = beasUrl
 Vue.prototype.$get = fetch
-Vue.prototype.common = Main
 Vue.prototype.mint = Mint
+Vue.prototype.common = Main
 /* eslint-disable no-new */
 Vue.use(Vuex)
 Vue.use(Mint)
@@ -34,6 +34,6 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
-window.addEventListener('popstate', function (e) {
+/* window.addEventListener('popstate', function (e) {
   router.togoback() // router已经在上面import进来
-}, false)
+}, false) */

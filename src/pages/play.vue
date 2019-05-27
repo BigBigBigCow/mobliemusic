@@ -4,13 +4,13 @@
       <div class="play_bg" id="bg" :style="bgStyle" v-show="bool"></div>
       <div class="play_content">
         <audio :src="`http://music.163.com/song/media/outer/url?id=${id}.mp3`" id="audio" preload="auto" style="position:absolute;z-index: 100;">支持吗？</audio>
-        <div style="position: absolute;right: 0;padding: 20px;z-index: 14;" @click="isShowPlay()" v-show="bool">
-          <i class="iconfont big-xia1" id="rotate" style="transform: rotateX(180deg);font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
-        </div>
-        <div style="position: absolute;left: 0;padding: 20px;z-index: 14;" @click="likeSong()" v-show="bool">
-          <i class="iconfont" :class="isLike ? 'big-xihuan1' : 'big-xihuan'" id="" style="font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
-        </div>
         <div class="play_body" :class="isShowPlayAm">
+          <div style="position: absolute;top: 0;right: 0;padding: 20px;z-index: 14;" @click="isShowPlay()" v-show="bool">
+            <i class="iconfont big-xia1" id="rotate" style="transform: rotateX(180deg);font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
+          </div>
+          <div style="position: absolute;top: 0;left: 0;padding: 20px;z-index: 14;" @click="likeSong()" v-show="bool">
+            <i class="iconfont" :class="isLike ? 'big-xihuan1' : 'big-xihuan'" id="" style="font-size: 30px;color: #fff;display: inline-block;transition: all .3s;"></i>
+          </div>
           <div class="play_body_b">
             <div class="play_body_img" @click="play">
     <!--          {{song[0].al.picUrl}}-->
@@ -36,7 +36,7 @@
             <span style="border-left: 2px solid #C20C0C;padding: 2px 0 2px 10px;font-size: 16px;font-weight: 600;color: #fff">包含这首歌的歌单</span>
           </div>
           <div class="ream-ul" v-if="incoludPlayList.length>0">
-            <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click.prevent="playListDetail(item.id)">
+            <div class="ream-li" v-for="(item, index) in incoludPlayList" :key="index" :style="index%3 === 0?'margin-left:0;':''" @click="playListDetail(item.id)">
               <div>
                 <img :src="item.coverImgUrl+'?param=30y30'" alt="" class="picImg">
                 <span><i class="iconfont big-icon-test15"></i>{{(item.playCount/10000)>10000?(item.playCount/100000000).toFixed(1)+'亿':(item.playCount/10000).toFixed(1)+'万'}}</span>
@@ -192,7 +192,7 @@ export default {
       }, 500)
     },
     likeSong () {
-      console.log(this.$parent.profile.userId)
+      // console.log(this.$parent.profile.userId)
       if (this.$parent.profile.userId) {
         this.$get(`${this.domin}/api/song/like?id=${this.id}&like=${!this.isLike}`, {}).then(response => {
           this.isLike = !this.isLike
@@ -413,15 +413,17 @@ export default {
         } */
       })
     },
-    default (e) {
+    default () {
+      console.log('default()')
       if (this.$parent.isShow) return
       // let moveDiv = this.$parent.isShow ? document.getElementsByClassName('play_content')[0] : document.getElementsByClassName('play')[0]
       let moveDiv = document.getElementsByClassName('play')[0]
       moveDiv.addEventListener(
         'touchmove',
         (e) => {
-          // console.log(e)
-          e.stopPropagation()
+          // console.log('addEventListener "touchmove"')
+          // e.stopPropagation()
+          console.log(!this.$parent.isShow, 'addEventListener "touchmove"')
           if (!this.$parent.isShow) {
             e.preventDefault()
           }
@@ -429,7 +431,8 @@ export default {
         { passive: false }
       )
     },
-    pTouchStart (e) {
+    pTouchStart () {
+      console.log('pTouchStart()')
       if (this.$parent.isShow) return
       // console.log('开始触摸', e)
       this.flags = 1 // 滑动中
@@ -448,7 +451,8 @@ export default {
       this.dx = moveDiv.offsetLeft // dom距离左侧的距离
       this.dy = moveDiv.offsetTop // dom距离上侧的距离
     },
-    move (e) {
+    move () {
+      console.log('move()')
       if (this.$parent.isShow) return
       // console.log('开始滑动')
       let moveDiv = document.getElementsByClassName('play')[0] // 播放页
@@ -477,7 +481,8 @@ export default {
         // this.bool = this.yPum <= 200
       }
     },
-    end (e) {
+    end () {
+      console.log('end()')
       if (this.$parent.isShow) return
       // console.log('触摸结束', e)
       if (this.flags === 1) {

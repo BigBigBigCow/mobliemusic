@@ -7,7 +7,7 @@
         <span>{{errMsg}}</span>
       </div>
       <div :class="hasID">
-        <input class="form-control" type="number" placeholder="手机号" v-model="mobilePhone" maxlength="11">
+        <input class="form-control" type="tel" placeholder="手机号" v-model="mobilePhone" maxlength="11">
       </div>
       <div :class="hasPsw">
         <input class="form-control" type="password" placeholder="密码" v-model="password" @keyup.enter="login()">
@@ -73,6 +73,7 @@ export default {
   },
   methods: {
     login () {
+      document.activeElement.blur()
       if (this.isMobilePhone && this.password.length > 5) {
         this.hasID = 'has-success'
         this.hasPsw = 'has-success'
@@ -91,7 +92,9 @@ export default {
               console.log(response.body.profile)
               this.$parent.profile = response.body.profile
               // this.$parent.getLoginStatus()
-              this.$router.replace('/')
+              setTimeout(() => {
+                this.$router.replace('/')
+              }, 1000)
             }
           }).catch(() => {
             this.errMsg = '未知错误'
